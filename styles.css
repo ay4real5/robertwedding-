@@ -92,6 +92,7 @@ section { padding: 5rem 2rem; }
   transition: all 0.3s ease;
 }
 
+.nav-brand { display: none; }
 .nav ul { display: flex; justify-content: center; gap: 2rem; list-style: none; flex-wrap: wrap; }
 
 .nav a {
@@ -1077,47 +1078,207 @@ blockquote {
 }
 
 /* =============================================
+   HAMBURGER BUTTON (mobile only)
+   ============================================= */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 1001;
+}
+
+.nav-hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--gold-light);
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* =============================================
    RESPONSIVE
    ============================================= */
+
+/* — Save the Date — */
 @media (max-width: 640px) {
   .std-card { grid-template-columns: 1fr; }
-  .std-photo { min-height: 220px; }
-  .std-content { padding: 2rem 1.5rem; }
+  .std-photo { min-height: 200px; }
+  .std-content { padding: 1.8rem 1.5rem; }
+  .std-names { font-size: 1.8rem; }
 }
 
+/* — Tablet / large mobile — */
 @media (max-width: 900px) {
+  /* Hero stacks vertically */
   .hero-split { grid-template-columns: 1fr; }
-  .hero-photos { height: 50vh; }
-  .hero-text { padding: 3rem 2rem; }
+  .hero-photos { height: 45vh; min-height: 260px; }
+  .hero-text {
+    padding: 3rem 2rem 2.5rem;
+    align-items: center;
+    text-align: center;
+  }
   .hero-text::before { display: none; }
+  .hero-names { align-items: center; }
+  .hero-date-wrap { justify-content: center; }
+  .hero-dots { left: 50%; transform: translateX(-50%); bottom: 1rem; }
 
-  .story { grid-template-columns: 1fr; }
-  .polaroid-wall { height: 340px; }
-  .p1 { top: 10px; left: 10px; width: 160px; height: 190px; }
-  .p2 { top: 5px;  left: 170px; width: 150px; height: 180px; }
-  .p3 { top: 190px; left: 20px; width: 150px; height: 170px; }
-  .p4 { top: 185px; left: 175px; width: 145px; height: 168px; }
-  .story-text-wrap { padding: 2rem; }
+  /* Story */
+  .story { grid-template-columns: 1fr; padding: 4rem 1.5rem; }
+  .polaroid-wall { height: 320px; margin: 0 auto; max-width: 420px; width: 100%; }
+  .p1 { top: 10px; left: 10px; width: 155px; height: 185px; }
+  .p2 { top: 5px;  left: 175px; width: 145px; height: 178px; }
+  .p3 { top: 185px; left: 18px; width: 148px; height: 168px; }
+  .p4 { top: 180px; left: 178px; width: 142px; height: 165px; }
+  .story-text-wrap { padding: 2rem 1.5rem; text-align: center; }
   .story-text-wrap .section-title { text-align: center; }
   .story-text-wrap .divider-ornament { text-align: center; }
+  blockquote { font-size: 1.1rem; }
 }
 
+/* — Mobile — */
 @media (max-width: 768px) {
-  .nav ul { gap: 0.8rem; }
-  .nav a { font-size: 0.6rem; }
-  .form-row { grid-template-columns: 1fr; }
-  .timeline-list::before { left: 16px; transform: none; }
-  .timeline-item { grid-template-columns: auto 1fr; gap: 1rem; }
+  /* Nav — hamburger */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.2rem;
+  }
+
+  .nav-brand {
+    display: block;
+    font-family: var(--font-script);
+    color: var(--gold);
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-hamburger { display: flex; }
+
+  .nav ul {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: rgba(12,10,7,0.98);
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 1rem 0 1.5rem;
+    border-top: 1px solid rgba(184,150,90,0.2);
+  }
+
+  .nav ul.open { display: flex; }
+
+  .nav a {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    padding: 0.7rem 1rem;
+    display: block;
+  }
+
+  /* Hero text */
+  .hero-text { padding: 2.5rem 1.5rem 3rem; }
+  .hn-line { font-size: clamp(2.2rem, 10vw, 3.5rem); }
+  .hn-amp  { font-size: clamp(1.6rem, 7vw, 2.5rem); }
+  .countdown { justify-content: center; gap: 0.8rem; }
+  .countdown-item { min-width: 52px; padding: 0.5rem 0.6rem; }
+  .btn-outline { font-size: 0.65rem; padding: 0.65rem 2rem; }
+
+  /* Parallax */
+  .parallax-banner { background-attachment: scroll; height: 260px; }
+  .parallax-quote { font-size: clamp(1.1rem, 5vw, 1.8rem); }
+
+  /* Film strip */
+  .film-strip { padding: 0 2.5rem; }
+  .film-frame { flex: 0 0 220px; height: 300px; }
+  .film-frame.film-feature { flex: 0 0 280px; }
+  .strip-btn { width: 36px; height: 52px; font-size: 2rem; }
+
+  /* Map */
+  .map-venues { flex-direction: column; align-items: stretch; gap: 0.6rem; }
+  .map-venue-card { justify-content: flex-start; }
+  .map-route-btn { width: 100%; text-align: center; box-sizing: border-box; }
+  .map-embed-wrap iframe { height: 320px; }
+
+  /* Details grid */
+  .details-grid { grid-template-columns: 1fr; }
+  .dresscode-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Timeline */
+  .timeline-list::before { left: 14px; transform: none; }
+  .timeline-item { grid-template-columns: auto 1fr; gap: 0.8rem; }
   .timeline-time { display: none; }
   .timeline-event { text-align: left; }
-  .film-frame { flex: 0 0 240px; height: 320px; }
-  .parallax-banner { background-attachment: scroll; }
+
+  /* Travel */
+  .travel-grid { grid-template-columns: 1fr; }
+  .notice-box { padding: 1.4rem 1.2rem; }
+
+  /* RSVP */
+  .form-row { grid-template-columns: 1fr; }
+
+  /* Wishes */
+  .wishes-wall { grid-template-columns: 1fr 1fr; }
+
+  /* FAQ */
+  .faq-question { font-size: 1rem; padding-right: 1.5rem; }
 }
 
+/* — Small mobile — */
 @media (max-width: 480px) {
-  section { padding: 3.5rem 1.2rem; }
-  .nav ul { gap: 0.4rem; }
-  .nav a { font-size: 0.55rem; letter-spacing: 0.08em; }
-  .detail-card { padding: 1.8rem 1.2rem; }
-  .film-frame { flex: 0 0 200px; height: 270px; }
+  section { padding: 3rem 1rem; }
+
+  /* Hero */
+  .hero-photos { height: 38vh; min-height: 220px; }
+  .hero-text { padding: 2rem 1.2rem 2.5rem; }
+  .countdown { gap: 0.5rem; }
+  .countdown-item { min-width: 46px; }
+  .countdown-item span { font-size: 1.5rem; }
+  .countdown-item label { font-size: 0.55rem; }
+
+  /* Polaroids — scale down to fit small screens */
+  .polaroid-wall { height: 280px; }
+  .p1 { top: 8px;  left: 4px;   width: 132px; height: 158px; }
+  .p2 { top: 4px;  left: 144px; width: 126px; height: 154px; }
+  .p3 { top: 164px; left: 8px;  width: 128px; height: 148px; }
+  .p4 { top: 160px; left: 148px; width: 122px; height: 144px; }
+  .polaroid { border-width: 4px; border-bottom-width: 32px; }
+  .polaroid span { font-size: 0.78rem; bottom: -26px; }
+
+  /* Film strip */
+  .film-strip { padding: 0 2rem; }
+  .film-frame { flex: 0 0 180px; height: 250px; }
+  .film-frame.film-feature { flex: 0 0 240px; }
+
+  /* Parallax */
+  .parallax-banner { height: 220px; }
+
+  /* Details */
+  .detail-card { padding: 1.6rem 1rem; }
+  .dresscode-grid { grid-template-columns: 1fr; }
+
+  /* Wishes */
+  .wishes-wall { grid-template-columns: 1fr; }
+
+  /* Map */
+  .map-embed-wrap iframe { height: 280px; }
+
+  /* Footer */
+  .footer { padding: 2.5rem 1rem; }
+  .footer-names { font-size: 1.8rem; }
+
+  /* STD popup */
+  .std-content { padding: 1.5rem 1.2rem; }
+  .std-names { font-size: 1.5rem; }
 }

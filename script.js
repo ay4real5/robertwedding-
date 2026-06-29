@@ -1,4 +1,36 @@
 // =============================================
+// HAMBURGER MENU
+// =============================================
+(function () {
+  var btn  = document.getElementById('navHamburger');
+  var menu = document.getElementById('navMenu');
+  if (!btn || !menu) return;
+
+  btn.addEventListener('click', function () {
+    var isOpen = menu.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+    btn.setAttribute('aria-expanded', isOpen);
+  });
+
+  // Close menu when any nav link is clicked
+  menu.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    });
+  });
+
+  // Close on outside click
+  document.addEventListener('click', function (e) {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+})();
+
+
+// =============================================
 // SAVE THE DATE POPUP
 // =============================================
 (function () {
