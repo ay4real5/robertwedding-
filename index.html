@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oluwaseun & Robertson | 1st August 2026</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Montserrat:wght@200;300;400;500&family=Dancing+Script:wght@600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- SAVE THE DATE POPUP -->
+  <div class="std-overlay" id="stdOverlay">
+    <div class="std-card" id="stdCard">
+      <div class="std-photo" style="background-image:url('images/photo3.jpg')"></div>
+      <div class="std-content">
+        <p class="std-pre">You are warmly invited to celebrate</p>
+        <h2 class="std-names">Oluwaseun<span>&amp;</span>Robertson</h2>
+        <div class="std-divider"></div>
+        <p class="std-label">Save the Date</p>
+        <p class="std-date">Saturday, 1st August 2026</p>
+        <p class="std-location">Glasgow, Scotland</p>
+        <div class="std-tags">#theORiginallovestory &nbsp;·&nbsp; #theORwedding</div>
+        <button class="std-btn" id="stdEnter">View Invitation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav" id="navbar">
+    <ul>
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#story">Our Story</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#details">Details</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#travel">Travel & Stay</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#rsvp">RSVP</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO: SPLIT SCREEN -->
+  <section class="hero" id="hero">
+    <div class="hero-split">
+      <!-- LEFT: photos stack -->  
+      <div class="hero-photos">
+        <div class="hero-photo hp1" style="background-image:url('images/photo1.jpg')"></div>
+        <div class="hero-photo hp2" style="background-image:url('images/photo9.jpg')"></div>
+        <div class="hero-photo hp3" style="background-image:url('images/photo8.jpg')"></div>
+      </div>
+      <!-- RIGHT: text -->
+      <div class="hero-text">
+        <p class="hero-pre">Together with their families</p>
+        <h1 class="hero-names">
+          <span class="hn-line">Oluwaseun</span>
+          <span class="hn-amp">&amp;</span>
+          <span class="hn-line">Robertson</span>
+        </h1>
+        <div class="hero-date-wrap">
+          <span class="hero-line-dec"></span>
+          <p class="hero-date">1 · VIII · MMXXVI</p>
+          <span class="hero-line-dec"></span>
+        </div>
+        <p class="hero-location">St Mary's Cathedral &nbsp;·&nbsp; Glasgow</p>
+        <div class="countdown" id="countdown">
+          <div class="countdown-item"><span id="days">00</span><label>Days</label></div>
+          <div class="countdown-item"><span id="hours">00</span><label>Hours</label></div>
+          <div class="countdown-item"><span id="minutes">00</span><label>Minutes</label></div>
+          <div class="countdown-item"><span id="seconds">00</span><label>Seconds</label></div>
+        </div>
+        <a href="#story" class="btn-outline">Our Story</a>
+      </div>
+    </div>
+    <!-- slide dots -->
+    <div class="hero-dots">
+      <button class="hero-dot active" data-idx="0"></button>
+      <button class="hero-dot" data-idx="1"></button>
+      <button class="hero-dot" data-idx="2"></button>
+    </div>
+  </section>
+
+  <!-- WELCOME -->
+  <section class="welcome section-light" id="welcome">
+    <div class="container narrow">
+      <div class="divider-ornament">✦</div>
+      <h2 class="section-title">We're Getting Married!</h2>
+      <p class="lead-text">
+        We are so excited to celebrate our special day with our family and friends.
+        Thank you for being part of our journey and for joining us as we begin this new chapter together.
+      </p>
+      <div class="hashtags">
+        <span>#theORiginallovestory</span>
+        <span>#theORwedding</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUR STORY -->
+  <section class="story" id="story">
+    <!-- Staggered polaroid photos -->
+    <div class="polaroid-wall">
+      <div class="polaroid p1" data-src="images/photo8.jpg" style="background-image:url('images/photo8.jpg')"><span>June 2023</span></div>
+      <div class="polaroid p2" data-src="images/photo9.jpg" style="background-image:url('images/photo9.jpg')"><span>November 2023</span></div>
+      <div class="polaroid p3" data-src="images/photo6.jpg" style="background-image:url('images/photo6.jpg')"><span>March 2026</span></div>
+      <div class="polaroid p4" data-src="images/photo10.jpg" style="background-image:url('images/photo10.jpg')"><span>Forever</span></div>
+    </div>
+    <!-- Story text -->
+    <div class="story-text-wrap">
+      <div class="divider-ornament">❧</div>
+      <h2 class="section-title">Our Story</h2>
+      <div class="story-body">
+        <p>Sometimes the most beautiful love stories begin in the most ordinary places.</p>
+        <p>Our story began in <strong>June 2023</strong> as colleagues at work. Neither of us knew that the person we would one day call home was already standing quietly in the background of our lives. What started as simple conversations gradually became friendship, and friendship slowly blossomed into something neither of us could ignore.</p>
+        <p>The more time we spent together, the more we discovered in each other — someone who shared our values, our faith, our dreams, and our sense of humour.</p>
+        <p>In <strong>November 2023</strong>, we began our journey as boyfriend and girlfriend. Through every season, we remained committed to choosing each other, building a relationship founded on love, trust, and faith in God.</p>
+        <p>In <strong>March 2026</strong>, at London's most iconic restaurant — The Aqua Shard — Robertson asked Oluwaseun to spend forever with him. It was the easiest <em>"yes"</em> and one of the happiest moments of our lives.</p>
+        <blockquote>"He has made everything beautiful in its time." — Ecclesiastes 3:11</blockquote>
+        <p>What began as two separate journeys has become one shared story centred on Christ. We look forward to growing together, laughing together, travelling together, and building a life that honours God in every season.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARALLAX QUOTE BANNER -->
+  <div class="parallax-banner" style="background-image:url('images/photo5.jpg')">
+    <div class="parallax-overlay"></div>
+    <p class="parallax-quote">"He has made everything beautiful in its time."</p>
+    <p class="parallax-ref">Ecclesiastes 3:11</p>
+  </div>
+
+  <!-- PHOTO GALLERY: HORIZONTAL FILM STRIP -->
+  <section class="gallery" id="gallery">
+    <div class="gallery-header">
+      <div class="divider-ornament">✦</div>
+      <h2 class="section-title">Our Moments</h2>
+      <p class="lead-text">A glimpse into our journey together</p>
+    </div>
+    <div class="film-strip-wrap">
+      <div class="film-strip" id="filmStrip">
+        <div class="film-frame film-feature" data-src="images/photo7.jpg"><img src="images/photo7.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+        <div class="film-frame" data-src="images/photo3.jpg"><img src="images/photo3.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+        <div class="film-frame" data-src="images/photo1.jpg"><img src="images/photo1.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+        <div class="film-frame film-feature" data-src="images/photo4.jpg"><img src="images/photo4.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+        <div class="film-frame" data-src="images/photo6.jpg"><img src="images/photo6.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+        <div class="film-frame" data-src="images/photo2.jpg"><img src="images/photo2.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+        <div class="film-frame" data-src="images/photo10.jpg"><img src="images/photo10.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+        <div class="film-frame film-feature" data-src="images/photo5.jpg"><img src="images/photo5.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+        <div class="film-frame" data-src="images/photo9.jpg"><img src="images/photo9.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+        <div class="film-frame" data-src="images/photo8.jpg"><img src="images/photo8.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
+      </div>
+      <button class="strip-btn strip-prev" id="stripPrev">&#8249;</button>
+      <button class="strip-btn strip-next" id="stripNext">&#8250;</button>
+    </div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">&#10005;</button>
+    <button class="lightbox-prev" id="lightboxPrev">&#8249;</button>
+    <button class="lightbox-next" id="lightboxNext">&#8250;</button>
+    <div class="lightbox-img-wrap">
+      <img src="" alt="" id="lightboxImg" />
+    </div>
+  </div>
+
+  <!-- CEREMONY & RECEPTION -->
+  <section class="details section-light" id="details">
+    <div class="container">
+      <div class="divider-ornament">✦</div>
+      <h2 class="section-title">Wedding Details</h2>
+      <div class="details-grid">
+
+        <div class="detail-card">
+          <div class="detail-icon">⛪</div>
+          <h3>Ceremony</h3>
+          <p class="venue-name">St Mary's Cathedral</p>
+          <p>300 Great Western Road<br>Glasgow, G4 9JB</p>
+          <div class="detail-divider"></div>
+          <p><strong>Saturday, 1st August 2026</strong></p>
+          <p>Arrival: 11:30 AM</p>
+          <p>Ceremony Begins: 12:00 PM</p>
+          <p class="detail-note">We kindly ask guests to arrive at least 30 minutes before the ceremony begins.</p>
+          <a class="map-link" href="https://maps.google.com/?q=300+Great+Western+Road+Glasgow+G4+9JB" target="_blank">View on Map →</a>
+        </div>
+
+        <div class="detail-card">
+          <div class="detail-icon">🥂</div>
+          <h3>Reception</h3>
+          <p class="venue-name">Enish Restaurant Glasgow</p>
+          <p>186 Bath Street<br>Glasgow, G2 4HG</p>
+          <div class="detail-divider"></div>
+          <p><strong>Saturday, 1st August 2026</strong></p>
+          <p>Reception Begins: 2:30 PM</p>
+          <p class="detail-note">Join us for an afternoon of food, drinks, laughter, music, dance and celebration as we continue our special day together.</p>
+          <a class="map-link" href="https://maps.google.com/?q=186+Bath+Street+Glasgow+G2+4HG" target="_blank">View on Map →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DRESS CODE -->
+  <section class="dresscode section-cream" id="dresscode">
+    <div class="container narrow">
+      <div class="divider-ornament">❧</div>
+      <h2 class="section-title">Dress Code</h2>
+      <div class="dresscode-grid">
+        <div class="dresscode-card">
+          <div class="dresscode-icon">👗</div>
+          <h3>Ladies</h3>
+          <p>Elegant and colourful dresses are encouraged. Embrace colour, style, and your personality.</p>
+        </div>
+        <div class="dresscode-card">
+          <div class="dresscode-icon">🤵</div>
+          <h3>Gentlemen</h3>
+          <p>Suits or smart formal wear. Feel free to add a pop of colour and celebrate in style.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="timeline section-dark" id="timeline">
+    <div class="container narrow">
+      <div class="divider-ornament">✦</div>
+      <h2 class="section-title">Wedding Day Timeline</h2>
+      <div class="timeline-list">
+        <div class="timeline-item">
+          <span class="timeline-time">11:30 AM</span>
+          <div class="timeline-dot"></div>
+          <span class="timeline-event">Guest Arrival</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-time">12:00 PM</span>
+          <div class="timeline-dot"></div>
+          <span class="timeline-event">Wedding Ceremony</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-time">1:00 PM</span>
+          <div class="timeline-dot"></div>
+          <span class="timeline-event">Breakfast Canapés, Tea & Refreshments</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-time">1:30 PM</span>
+          <div class="timeline-dot"></div>
+          <span class="timeline-event">Photographs with the Couple</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-time">2:30 PM</span>
+          <div class="timeline-dot"></div>
+          <span class="timeline-event">Reception</span>
+        </div>
+        <div class="timeline-item">
+          <span class="timeline-time">4:30 PM</span>
+          <div class="timeline-dot"></div>
+          <span class="timeline-event">Party 🎉</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE MAP -->
+  <section class="map-section section-light" id="map">
+    <div class="container">
+      <div class="divider-ornament">✦</div>
+      <h2 class="section-title">Find Us</h2>
+      <p class="lead-text">Two beautiful venues in the heart of Glasgow</p>
+      <div class="map-venues">
+        <div class="map-venue-card active" data-venue="ceremony" id="mapTabCeremony">
+          <span class="map-venue-icon">⛪</span>
+          <div>
+            <strong>Ceremony</strong>
+            <p>St Mary's Cathedral, G4 9JB</p>
+          </div>
+        </div>
+        <div class="map-venue-card" data-venue="reception" id="mapTabReception">
+          <span class="map-venue-icon">🥂</span>
+          <div>
+            <strong>Reception</strong>
+            <p>Enish Restaurant, G2 4HG</p>
+          </div>
+        </div>
+        <a class="map-route-btn" href="https://www.google.com/maps/dir/St+Mary's+Cathedral+Glasgow+G4+9JB/Enish+Restaurant+Glasgow+G2+4HG" target="_blank">Get Directions between venues →</a>
+      </div>
+      <div class="map-embed-wrap">
+        <iframe
+          id="mapIframe"
+          src="https://maps.google.com/maps?q=St+Mary's+Episcopal+Cathedral+Glasgow+G4+9JB&output=embed&z=15"
+          width="100%" height="420" style="border:0;" allowfullscreen loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- GIFTS -->
+  <section class="gifts section-light" id="gifts">
+    <div class="container narrow">
+      <div class="divider-ornament">❧</div>
+      <h2 class="section-title">Gifts</h2>
+      <p class="lead-text">Your presence at our wedding is the greatest gift we could ask for.</p>
+      <p>However, if you would like to bless us with a gift, a contribution towards our future together would be greatly appreciated.</p>
+    </div>
+  </section>
+
+  <!-- TRAVEL & STAY -->
+  <section class="travel section-cream" id="travel">
+    <div class="container">
+      <div class="divider-ornament">✦</div>
+      <h2 class="section-title">Travel & Stay</h2>
+      <p class="lead-text">We are delighted that you will be joining us in Glasgow to celebrate our special day. Here is some useful travel and accommodation information.</p>
+
+      <div class="travel-grid">
+
+        <div class="travel-card">
+          <h3>✈️ By Air</h3>
+          <ul>
+            <li><strong>Glasgow Airport (GLA)</strong> — approx. 20 minutes from the city centre</li>
+            <li><strong>Edinburgh Airport (EDI)</strong> — approx. 1 hour from Glasgow by car, bus, or train</li>
+          </ul>
+        </div>
+
+        <div class="travel-card">
+          <h3>🚆 By Train</h3>
+          <p>Glasgow is well connected by rail from across the UK. Main stations include:</p>
+          <ul>
+            <li><strong>Glasgow Central Station</strong></li>
+            <li><strong>Glasgow Queen Street Station</strong></li>
+          </ul>
+          <p>Both are located in the city centre, a short distance from the reception venue.</p>
+        </div>
+
+        <div class="travel-card">
+          <h3>🚖 Getting Around</h3>
+          <p>Uber, local taxis and buses are widely available throughout Glasgow.</p>
+          <p>The reception venue is approximately <strong>10 minutes by car</strong> and <strong>13 minutes by bus</strong> from the cathedral.</p>
+        </div>
+
+        <div class="travel-card accommodation-card">
+          <h3>🏨 Accommodation</h3>
+          <p>We recommend staying in Glasgow city centre or nearby areas such as Paisley for convenient access to both venues.</p>
+          <ul>
+            <li>Maldron Hotel Glasgow City</li>
+            <li>Clayton Hotel Glasgow</li>
+            <li>Motel One Glasgow</li>
+            <li>Leonardo Royal Hotel Glasgow</li>
+            <li>Holiday Inn Glasgow Airport</li>
+            <li>Normandy Hotel</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="notice-box">
+        <h4>⚠️ Accommodation Notice</h4>
+        <p>Our wedding takes place during the <strong>final weekend of the Glasgow 2026 Commonwealth Games</strong>, which means accommodation may be busier and more expensive than usual. We strongly recommend booking as early as possible.</p>
+        <p>Guests may also consider staying in nearby <strong>Paisley, Stirling, or Edinburgh</strong>, which offer excellent transport links. Edinburgh is approximately 50 minutes from Glasgow by train.</p>
+        <p>If you need any assistance, please feel free to contact us.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WISHES WALL -->
+  <section class="wishes section-cream" id="wishes">
+    <div class="container">
+      <div class="divider-ornament">❧</div>
+      <h2 class="section-title">Leave a Blessing</h2>
+      <p class="lead-text">Share your love and well wishes for the couple</p>
+      <div class="wishes-form-wrap">
+        <form class="wishes-form" id="wishesForm">
+          <input type="text" id="wishName" placeholder="Your name" maxlength="40" required />
+          <textarea id="wishText" placeholder="Write your blessing or message here..." rows="3" maxlength="200" required></textarea>
+          <button type="submit" class="btn-gold">Post Blessing ✦</button>
+        </form>
+      </div>
+      <div class="wishes-wall" id="wishesWall"></div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq section-dark" id="faq">
+    <div class="container narrow">
+      <div class="divider-ornament">❧</div>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">When should I RSVP by?</button>
+          <div class="faq-answer"><p>Please RSVP by <strong>1st July 2026</strong>.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">What time should I arrive?</button>
+          <div class="faq-answer"><p>Guests are kindly requested to arrive at St Mary's Cathedral by <strong>11:30 AM</strong>. The ceremony will begin promptly at 12:00 PM.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">Is there a dress code?</button>
+          <div class="faq-answer"><p>Yes. We'd love our guests to celebrate with us in colourful, elegant attire. Ladies are encouraged to wear vibrant dresses, while gentlemen are encouraged to wear suits or smart formal wear.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">Can I bring a plus one?</button>
+          <div class="faq-answer"><p>Due to venue capacity, only guests named on the invitation or included on the RSVP are invited to attend. We appreciate your understanding.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">Is there parking available?</button>
+          <div class="faq-answer"><p>There is parking available nearby. We recommend allowing extra time for parking and city-centre travel.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">Will food and drinks be provided?</button>
+          <div class="faq-answer"><p>Absolutely! We look forward to celebrating with you over great food, drinks, and wonderful company.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">Can I take photographs during the ceremony?</button>
+          <div class="faq-answer">
+            <p>Yes, absolutely! We'd love for you to capture and share special moments from our day. Please feel free to take photos and videos and don't forget to tag us:</p>
+            <p><strong>#theORiginallovestory &nbsp; #theORwedding</strong></p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">I have dietary requirements. What should I do?</button>
+          <div class="faq-answer"><p>Please include any dietary requirements or allergies when completing your RSVP.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">How do I get from the ceremony to the reception?</button>
+          <div class="faq-answer"><p>The reception venue is approximately <strong>10 minutes by car</strong> and <strong>13 minutes by bus</strong> from the cathedral. Guests may travel by taxi, Uber, or other preferred means of transport.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">Will the wedding be livestreamed?</button>
+          <div class="faq-answer"><p>Yes. The ceremony will be livestreamed for family and friends who are unable to attend in person. Please contact us if you would like the livestream link.</p></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">Who can I contact if I have a question?</button>
+          <div class="faq-answer"><p>If you have any questions before the wedding, please feel free to reach out to us. We will be happy to help.</p></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- RSVP -->
+  <section class="rsvp section-light" id="rsvp">
+    <div class="container narrow">
+      <div class="divider-ornament">✦</div>
+      <h2 class="section-title">RSVP</h2>
+      <p class="lead-text">Kindly respond by <strong>1st July 2026</strong></p>
+      <form class="rsvp-form" id="rsvpForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullName">Full Name *</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Your full name" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" placeholder="your@email.com" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="attendance">Will you be attending? *</label>
+            <select id="attendance" name="attendance" required>
+              <option value="" disabled selected>Please select</option>
+              <option value="yes">Joyfully accepts</option>
+              <option value="no">Regretfully declines</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="guests">Number of Guests (including yourself)</label>
+            <select id="guests" name="guests">
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group full-width">
+          <label for="dietary">Dietary Requirements / Allergies</label>
+          <textarea id="dietary" name="dietary" rows="3" placeholder="Please let us know of any dietary requirements or allergies..."></textarea>
+        </div>
+        <div class="form-group full-width">
+          <label for="message">Message to the Couple (optional)</label>
+          <textarea id="message" name="message" rows="4" placeholder="Share your well wishes with Oluwaseun & Robertson..."></textarea>
+        </div>
+        <div class="form-submit">
+          <button type="submit" class="btn-gold">Send RSVP</button>
+        </div>
+        <p class="form-note" id="formStatus"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="divider-ornament">❧</div>
+    <h2 class="footer-names">Oluwaseun &amp; Robertson</h2>
+    <p class="footer-date">1st August 2026 · Glasgow, Scotland</p>
+    <div class="hashtags">
+      <span>#theORiginallovestory</span>
+      <span>#theORwedding</span>
+    </div>
+    <p class="footer-verse">"He has made everything beautiful in its time." — Ecclesiastes 3:11</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
