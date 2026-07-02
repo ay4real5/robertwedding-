@@ -363,26 +363,45 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
 
 
 // =============================================
-// RSVP FORM + AUTO TABLE ASSIGNMENT
+// SMART RSVP + AUTO TABLE / SEAT ASSIGNMENT
 // =============================================
 (function () {
   var TOTAL_TABLES = 10;
   var SEATS_PER_TABLE = 5;
   var STORAGE_KEY = 'or_wedding_tables';
 
+  var step1 = document.getElementById('rsvpStep1');
+  var step2 = document.getElementById('rsvpStep2');
+  var declineStep = document.getElementById('rsvpDecline');
   var form = document.getElementById('rsvpForm');
+  var declineForm = document.getElementById('declineForm');
+  var guestSelect = document.getElementById('guests');
+  var plusOneGroup = document.getElementById('plusOneGroup');
   var statusEl = document.getElementById('formStatus');
-  var tableConfirm = document.getElementById('tableConfirm');
-  var tableConfirmText = document.getElementById('tableConfirmText');
-  var tableConfirmDetails = document.getElementById('tableConfirmDetails');
-  var tableGrid = document.getElementById('tableGrid');
-  if (!form) return;
+  var declineStatus = document.getElementById('declineStatus');
+  var seatMap = document.getElementById('seatMap');
+  var seatPreviewStatus = document.getElementById('seatPreviewStatus');
+  var seatPreview = document.getElementById('seatPreview');
+  var submitBtn = document.getElementById('rsvpSubmitBtn');
+
+  // Modal elements
+  var modal = document.getElementById('rsvpModal');
+  var modalTitle = document.getElementById('rsvpModalTitle');
+  var modalText = document.getElementById('rsvpModalText');
+  var modalTable = document.getElementById('rsvpModalTable');
+  var modalDetails = document.getElementById('rsvpModalDetails');
+  var modalSeats = document.getElementById('rsvpModalSeats');
+  var modalEmail = document.getElementById('rsvpModalEmail');
+  var modalClose = document.getElementById('rsvpModalClose');
+  var modalDone = document.getElementById('rsvpModalDone');
+
+  if (!step1) return;
 
   // Load or init table data
   function loadTables() {
     try {
       var data = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (data && data.length === TOTAL_TABLES) return data;
+      if (data && data.length === TOTAL_TABLES && data.every(function(n){ return typeof n === 'number'; })) return data;
     } catch(e) {}
     return new Array(TOTAL_TABLES).fill(0);
   }
@@ -391,7 +410,7 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tables)); } catch(e) {}
   }
 
-  // Find a table with enough free seats
+  // Find best table with enough free seats
   function findTable(numGuests, tables) {
     for (var i = 0; i < tables.length; i++) {
       if (tables[i] + numGuests <= SEATS_PER_TABLE) return i;
@@ -399,85 +418,174 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
     return -1;
   }
 
-  // Render the table overview grid
-  function renderTables(tables, yourTable) {
-    if (!tableGrid) return;
-    tableGrid.innerHTML = '';
-    for (var i = 0; i < TOTAL_TABLES; i++) {
-      var cell = document.createElement('div');
-      cell.className = 'table-cell';
-      if (tables[i] >= SEATS_PER_TABLE) cell.classList.add('full');
-      if (yourTable === i) cell.classList.add('yours');
-      cell.innerHTML =
-        '<span class="table-cell-num">T' + (i + 1) + '</span>' +
-        '<span class="table-cell-seats">' + tables[i] + '/' + SEATS_PER_TABLE + '</span>';
-      tableGrid.appendChild(cell);
+  // Generate seat numbers for assignment
+  function getSeatNumbers(tableIdx, numGuests, tables) {
+    var startSeat = tables[tableIdx] + 1;
+    var seats = [];
+    for (var i = 0; i < numGuests; i++) {
+      seats.push(startSeat + i);
+    }
+    return seats;
+  }
+
+  // Render live seat map
+  function renderSeatMap(tables, selectedTable, numGuests) {
+    if (!seatMap) return;
+    seatMap.innerHTML = '';
+    var totalGuests = tables.reduce(function(a, b) { return a + b; }, 0);
+    var remaining = TOTAL_TABLES * SEATS_PER_TABLE - totalGuests;
+    if (seatPreviewStatus) {
+      seatPreviewStatus.textContent = remaining + ' of ' + (TOTAL_TABLES * SEATS_PER_TABLE) + ' seats available';
+    }
+
+    for (var t = 0; t < TOTAL_TABLES; t++) {
+      var table = document.createElement('div');
+      table.className = 'seat-table';
+      if (selectedTable === t) table.classList.add('active');
+      table.innerHTML = '<div class="seat-table-label">Table ' + (t + 1) + '</div>';
+      var seatsWrap = document.createElement('div');
+      seatsWrap.className = 'seat-table-seats';
+
+      var previewGuests = (selectedTable === t) ? numGuests : 0;
+      for (var s = 0; s < SEATS_PER_TABLE; s++) {
+        var seat = document.createElement('span');
+        seat.className = 'seat-circle';
+        if (s < tables[t]) {
+          seat.classList.add('occupied');
+        } else if (s < tables[t] + previewGuests) {
+          seat.classList.add('selected');
+        }
+        seatsWrap.appendChild(seat);
+      }
+      table.appendChild(seatsWrap);
+      seatMap.appendChild(table);
     }
   }
 
   var tables = loadTables();
-  renderTables(tables, -1);
+  var selectedNumGuests = 1;
+  var selectedTable = -1;
+  renderSeatMap(tables, -1, 0);
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var name = document.getElementById('fullName').value.trim();
-    var email = document.getElementById('email').value.trim();
-    var attendance = document.getElementById('attendance').value;
-    var numGuests = parseInt(document.getElementById('guests').value, 10) || 1;
+  // Step 1: Yes / No choice
+  step1.querySelectorAll('.rsvp-choice-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var response = btn.dataset.response;
+      step1.classList.add('rsvp-hidden');
+      if (response === 'yes') {
+        step2.classList.remove('rsvp-hidden');
+        seatPreview.classList.remove('rsvp-hidden');
+        renderSeatMap(tables, selectedTable, selectedNumGuests);
+      } else {
+        declineStep.classList.remove('rsvp-hidden');
+        seatPreview.classList.add('rsvp-hidden');
+      }
+    });
+  });
 
-    if (attendance === 'no') {
-      statusEl.textContent = 'Thank you, ' + name + '. We are sorry you won\'t be able to make it, but we appreciate you letting us know.';
-      statusEl.style.color = 'var(--text-light)';
-      tableConfirm.classList.remove('show');
-      form.reset();
-      return;
-    }
+  // Dynamic plus-one field
+  if (guestSelect) {
+    guestSelect.addEventListener('change', function () {
+      selectedNumGuests = parseInt(this.value, 10) || 1;
+      if (selectedNumGuests === 2) {
+        plusOneGroup.classList.remove('rsvp-hidden');
+      } else {
+        plusOneGroup.classList.add('rsvp-hidden');
+      }
+      // Preview assignment
+      var tempTable = findTable(selectedNumGuests, tables);
+      selectedTable = tempTable;
+      renderSeatMap(tables, selectedTable, selectedNumGuests);
+    });
+  }
 
-    // Auto-assign to a table
-    var tableIdx = findTable(numGuests, tables);
-
-    if (tableIdx === -1) {
-      statusEl.innerHTML = '🎉 Thank you, ' + name + '! We are so happy you will be joining us. <br>All tables are currently full — we will contact you at <strong>' + email + '</strong> to confirm your seating arrangement.';
-      statusEl.style.color = 'var(--gold-dark)';
-      tableConfirm.classList.remove('show');
-      form.reset();
-      return;
-    }
-
-    // Assign seats
-    tables[tableIdx] += numGuests;
-    saveTables(tables);
-
+  // Show modal
+  function showModal(name, email, tableIdx, seatNumbers, numGuests) {
     var tableNum = tableIdx + 1;
     var seatsLeft = SEATS_PER_TABLE - tables[tableIdx];
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
 
-    statusEl.innerHTML = '🎉 Thank you, ' + name + '! We are so happy you will be joining us on 1st August 2026.';
-    statusEl.style.color = 'var(--gold-dark)';
+    modalTitle.textContent = 'You\'re seated, ' + (name.split(' ')[0] || name) + '!';
+    modalText.textContent = 'Our smart seating system has automatically reserved your spot.';
+    modalTable.textContent = tableNum;
 
-    // Show confirmation card
-    tableConfirm.classList.add('show');
-    tableConfirmText.innerHTML =
-      'You have been automatically assigned to <strong>Table ' + tableNum + '</strong> with ' +
-      numGuests + ' seat' + (numGuests > 1 ? 's' : '') + '. ' +
-      'A confirmation email has been sent to <strong>' + email + '</strong>.';
+    modalDetails.innerHTML =
+      '<span class="rsvp-modal-pill">Table ' + tableNum + '</span>' +
+      '<span class="rsvp-modal-pill">' + numGuests + ' Guest' + (numGuests > 1 ? 's' : '') + '</span>' +
+      '<span class="rsvp-modal-pill">' + seatsLeft + ' Seat' + (seatsLeft !== 1 ? 's' : '') + ' Left</span>';
 
-    tableConfirmDetails.innerHTML =
-      '<span class="detail-pill">Table ' + tableNum + '</span>' +
-      '<span class="detail-pill">' + numGuests + ' Seat' + (numGuests > 1 ? 's' : '') + '</span>' +
-      '<span class="detail-pill">' + seatsLeft + ' seat' + (seatsLeft !== 1 ? 's' : '') + ' left</span>';
+    modalSeats.innerHTML = '';
+    seatNumbers.forEach(function (seatNum) {
+      var seat = document.createElement('span');
+      seat.className = 'rsvp-modal-seat';
+      seat.textContent = 'S' + seatNum;
+      modalSeats.appendChild(seat);
+    });
 
-    renderTables(tables, tableIdx);
+    modalEmail.innerHTML = '✉️ Confirmation sent to <strong>' + email + '</strong>';
+  }
 
-    // Simulate email confirmation
-    setTimeout(function () {
-      var emailNote = document.createElement('p');
-      emailNote.style.cssText = 'font-size:0.78rem;color:#7a6a52;margin-top:0.6rem;font-style:italic;';
-      emailNote.innerHTML = '✉️ Confirmation email sent to ' + email + ' with your table details and wedding day information.';
-      tableConfirmDetails.appendChild(emailNote);
-    }, 1200);
+  function closeModal() {
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+  }
 
-    form.reset();
+  if (modalClose) modalClose.addEventListener('click', closeModal);
+  if (modalDone) modalDone.addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) closeModal();
   });
+
+  // Main RSVP form submit
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = document.getElementById('fullName').value.trim();
+      var email = document.getElementById('email').value.trim();
+      var numGuests = parseInt(document.getElementById('guests').value, 10) || 1;
+      var plusOneName = document.getElementById('plusOneName') ? document.getElementById('plusOneName').value.trim() : '';
+
+      // Auto-assign to a table
+      var tableIdx = findTable(numGuests, tables);
+
+      if (tableIdx === -1) {
+        statusEl.innerHTML = '🎉 Thank you, ' + name + '! We are so happy you will be joining us. <br>All tables are currently full — we will contact you at <strong>' + email + '</strong> to confirm your seating arrangement.';
+        statusEl.style.color = 'var(--gold-dark)';
+        form.reset();
+        return;
+      }
+
+      // Assign seats
+      var seatNumbers = getSeatNumbers(tableIdx, numGuests, tables);
+      tables[tableIdx] += numGuests;
+      saveTables(tables);
+
+      statusEl.innerHTML = '🎉 Thank you, ' + name + '! Your seat has been assigned.';
+      statusEl.style.color = 'var(--gold-dark)';
+
+      // Show beautiful modal
+      showModal(name, email, tableIdx, seatNumbers, numGuests);
+
+      // Update live seat map
+      renderSeatMap(tables, tableIdx, 0);
+
+      form.reset();
+      plusOneGroup.classList.add('rsvp-hidden');
+    });
+  }
+
+  // Decline form submit
+  if (declineForm) {
+    declineForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = document.getElementById('declineName').value.trim();
+      var email = document.getElementById('declineEmail').value.trim();
+      declineStatus.innerHTML = 'Thank you, ' + name + '. We appreciate you letting us know. A note has been sent to <strong>' + email + '</strong>.';
+      declineStatus.style.color = 'var(--gold-dark)';
+      declineForm.reset();
+    });
+  }
 })();
 
 
