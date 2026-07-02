@@ -618,8 +618,6 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
   var bars = document.getElementById('musicBars');
   var playIcon = document.querySelector('.music-icon-play');
   var pauseIcon = document.querySelector('.music-icon-pause');
-  var entranceBtn = document.getElementById('entranceBtn');
-  var entranceOverlay = document.getElementById('entranceOverlay');
 
   var player = null;
   var isPlaying = false;
@@ -683,15 +681,11 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
     });
   };
 
-  // Entrance overlay starts the music
-  if (entranceBtn && entranceOverlay) {
-    entranceBtn.addEventListener('click', function () {
+  // Save the Date popup starts the music when entering the site
+  var stdEnter = document.getElementById('stdEnter');
+  if (stdEnter) {
+    stdEnter.addEventListener('click', function () {
       startMusic();
-      entranceOverlay.classList.add('hide');
-      document.body.style.overflow = '';
-      // Show STD popup if still pending
-      var stdOverlay = document.getElementById('stdOverlay');
-      if (stdOverlay) stdOverlay.style.display = 'flex';
     });
   }
 
