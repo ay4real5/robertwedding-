@@ -380,18 +380,6 @@ section { padding: 5rem 2rem; }
   cursor: pointer;
   transition: transform 0.4s var(--ease), box-shadow 0.4s ease, z-index 0s;
   border: 6px solid #fff;
-  border-bottom: 40px solid #fff;
-}
-
-.polaroid span {
-  position: absolute;
-  bottom: -32px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-script);
-  font-size: 0.95rem;
-  color: #888;
-  white-space: nowrap;
 }
 
 .polaroid:hover {
@@ -2010,8 +1998,7 @@ blockquote {
   .p2 { top: 4px;  left: 144px; width: 126px; height: 154px; }
   .p3 { top: 164px; left: 8px;  width: 128px; height: 148px; }
   .p4 { top: 160px; left: 148px; width: 122px; height: 144px; }
-  .polaroid { border-width: 4px; border-bottom-width: 32px; }
-  .polaroid span { font-size: 0.78rem; bottom: -26px; }
+  .polaroid { border-width: 4px; }
 
   /* Film strip */
   .film-strip { padding: 0 2rem; }
