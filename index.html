@@ -431,6 +431,140 @@
     </div>
   </section>
 
+  <!-- RSVP -->
+  <section class="rsvp section-light" id="rsvp">
+    <div class="container narrow">
+      <div class="divider-ornament">✦</div>
+      <h2 class="section-title">RSVP</h2>
+      <p class="lead-text">Kindly respond by <strong>1st July 2026</strong></p>
+
+      <div class="rsvp-smart">
+        <!-- Step 1: Response -->
+        <div class="rsvp-step" id="rsvpStep1">
+          <div class="rsvp-step-label">Step 1</div>
+          <h3 class="rsvp-step-title">Will you be joining us?</h3>
+          <div class="rsvp-choice">
+            <button type="button" class="rsvp-choice-btn rsvp-yes" data-response="yes">
+              <span class="rsvp-choice-icon">✦</span>
+              <span class="rsvp-choice-text">Joyfully Accept</span>
+            </button>
+            <button type="button" class="rsvp-choice-btn rsvp-no" data-response="no">
+              <span class="rsvp-choice-icon">✧</span>
+              <span class="rsvp-choice-text">Regretfully Decline</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Guest Details (hidden until yes) -->
+        <div class="rsvp-step rsvp-hidden" id="rsvpStep2">
+          <div class="rsvp-step-label">Step 2</div>
+          <h3 class="rsvp-step-title">Guest Details</h3>
+          <form class="rsvp-form" id="rsvpForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="fullName">Full Name *</label>
+                <input type="text" id="fullName" name="fullName" placeholder="Your full name" required />
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="guests">Number of Guests (including yourself) *</label>
+                <select id="guests" name="guests" required>
+                  <option value="1">1 guest</option>
+                  <option value="2">2 guests</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="For day-of contact" />
+              </div>
+            </div>
+
+            <!-- Dynamic plus-one name field -->
+            <div class="form-group full-width rsvp-hidden" id="plusOneGroup">
+              <label for="plusOneName">Plus One Full Name</label>
+              <input type="text" id="plusOneName" name="plusOneName" placeholder="Enter your guest's full name" />
+            </div>
+
+            <div class="form-group full-width">
+              <label for="dietary">Dietary Requirements / Allergies</label>
+              <textarea id="dietary" name="dietary" rows="3" placeholder="Please let us know of any dietary requirements or allergies..."></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label for="message">Message to the Couple (optional)</label>
+              <textarea id="message" name="message" rows="4" placeholder="Share your well wishes with Oluwaseun & Robertson..."></textarea>
+            </div>
+            <div class="form-submit">
+              <button type="submit" class="btn-gold" id="rsvpSubmitBtn">Find My Seat & Send RSVP</button>
+            </div>
+            <p class="form-note" id="formStatus"></p>
+          </form>
+        </div>
+
+        <!-- Decline message (hidden until no) -->
+        <div class="rsvp-step rsvp-hidden" id="rsvpDecline">
+          <div class="rsvp-decline-card">
+            <div class="rsvp-decline-icon">✧</div>
+            <h3>We're sorry you can't make it</h3>
+            <p>Thank you for letting us know. We appreciate your thoughtfulness.</p>
+            <form class="rsvp-form" id="declineForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="declineName">Full Name *</label>
+                  <input type="text" id="declineName" name="declineName" placeholder="Your full name" required />
+                </div>
+                <div class="form-group">
+                  <label for="declineEmail">Email Address *</label>
+                  <input type="email" id="declineEmail" name="declineEmail" placeholder="your@email.com" required />
+                </div>
+              </div>
+              <div class="form-submit">
+                <button type="submit" class="btn-outline">Send Regrets</button>
+              </div>
+              <p class="form-note" id="declineStatus"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live seat preview -->
+      <div class="seat-preview rsvp-hidden" id="seatPreview">
+        <div class="seat-preview-header">
+          <h4>Live Seating Preview</h4>
+          <span class="seat-preview-status" id="seatPreviewStatus">10 tables · 5 seats each</span>
+        </div>
+        <div class="seat-map" id="seatMap"></div>
+        <p class="seat-legend">
+          <span class="seat-dot seat-free"></span> Available
+          <span class="seat-dot seat-occupied"></span> Occupied
+          <span class="seat-dot seat-selected"></span> Your Seats
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RSVP CONFIRMATION MODAL -->
+  <div class="rsvp-modal" id="rsvpModal">
+    <div class="rsvp-modal-card">
+      <button class="rsvp-modal-close" id="rsvpModalClose">&#10005;</button>
+      <div class="rsvp-modal-icon">✦</div>
+      <h2 id="rsvpModalTitle">You're seated!</h2>
+      <p id="rsvpModalText"></p>
+      <div class="rsvp-modal-table">
+        <div class="rsvp-modal-table-num" id="rsvpModalTable">T1</div>
+        <div class="rsvp-modal-table-label">Table</div>
+      </div>
+      <div class="rsvp-modal-details" id="rsvpModalDetails"></div>
+      <div class="rsvp-modal-seats" id="rsvpModalSeats"></div>
+      <p class="rsvp-modal-email" id="rsvpModalEmail"></p>
+      <button class="rsvp-modal-btn" id="rsvpModalDone">Done</button>
+    </div>
+  </div>
+
   <!-- GIFTS -->
   <section class="gifts section-light" id="gifts">
     <div class="container narrow">
@@ -585,141 +719,6 @@
     </div>
   </section>
 
-  <!-- RSVP -->
-  <section class="rsvp section-light" id="rsvp">
-    <div class="container narrow">
-      <div class="divider-ornament">✦</div>
-      <h2 class="section-title">RSVP</h2>
-      <p class="lead-text">Kindly respond by <strong>1st July 2026</strong></p>
-
-      <div class="rsvp-smart">
-        <!-- Step 1: Response -->
-        <div class="rsvp-step" id="rsvpStep1">
-          <div class="rsvp-step-label">Step 1</div>
-          <h3 class="rsvp-step-title">Will you be joining us?</h3>
-          <div class="rsvp-choice">
-            <button type="button" class="rsvp-choice-btn rsvp-yes" data-response="yes">
-              <span class="rsvp-choice-icon">✦</span>
-              <span class="rsvp-choice-text">Joyfully Accept</span>
-            </button>
-            <button type="button" class="rsvp-choice-btn rsvp-no" data-response="no">
-              <span class="rsvp-choice-icon">✧</span>
-              <span class="rsvp-choice-text">Regretfully Decline</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 2: Guest Details (hidden until yes) -->
-        <div class="rsvp-step rsvp-hidden" id="rsvpStep2">
-          <div class="rsvp-step-label">Step 2</div>
-          <h3 class="rsvp-step-title">Guest Details</h3>
-          <form class="rsvp-form" id="rsvpForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="fullName">Full Name *</label>
-                <input type="text" id="fullName" name="fullName" placeholder="Your full name" required />
-              </div>
-              <div class="form-group">
-                <label for="email">Email Address *</label>
-                <input type="email" id="email" name="email" placeholder="your@email.com" required />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="guests">Number of Guests (including yourself) *</label>
-                <select id="guests" name="guests" required>
-                  <option value="1">1 guest</option>
-                  <option value="2">2 guests</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" placeholder="For day-of contact" />
-              </div>
-            </div>
-
-            <!-- Dynamic plus-one name field -->
-            <div class="form-group full-width rsvp-hidden" id="plusOneGroup">
-              <label for="plusOneName">Plus One Full Name</label>
-              <input type="text" id="plusOneName" name="plusOneName" placeholder="Enter your guest's full name" />
-            </div>
-
-            <div class="form-group full-width">
-              <label for="dietary">Dietary Requirements / Allergies</label>
-              <textarea id="dietary" name="dietary" rows="3" placeholder="Please let us know of any dietary requirements or allergies..."></textarea>
-            </div>
-            <div class="form-group full-width">
-              <label for="message">Message to the Couple (optional)</label>
-              <textarea id="message" name="message" rows="4" placeholder="Share your well wishes with Oluwaseun & Robertson..."></textarea>
-            </div>
-            <div class="form-submit">
-              <button type="submit" class="btn-gold" id="rsvpSubmitBtn">Find My Seat & Send RSVP</button>
-            </div>
-            <p class="form-note" id="formStatus"></p>
-          </form>
-        </div>
-
-        <!-- Decline message (hidden until no) -->
-        <div class="rsvp-step rsvp-hidden" id="rsvpDecline">
-          <div class="rsvp-decline-card">
-            <div class="rsvp-decline-icon">✧</div>
-            <h3>We're sorry you can't make it</h3>
-            <p>Thank you for letting us know. We appreciate your thoughtfulness.</p>
-            <form class="rsvp-form" id="declineForm">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="declineName">Full Name *</label>
-                  <input type="text" id="declineName" name="declineName" placeholder="Your full name" required />
-                </div>
-                <div class="form-group">
-                  <label for="declineEmail">Email Address *</label>
-                  <input type="email" id="declineEmail" name="declineEmail" placeholder="your@email.com" required />
-                </div>
-              </div>
-              <div class="form-submit">
-                <button type="submit" class="btn-outline">Send Regrets</button>
-              </div>
-              <p class="form-note" id="declineStatus"></p>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Live seat preview -->
-      <div class="seat-preview rsvp-hidden" id="seatPreview">
-        <div class="seat-preview-header">
-          <h4>Live Seating Preview</h4>
-          <span class="seat-preview-status" id="seatPreviewStatus">10 tables · 5 seats each</span>
-        </div>
-        <div class="seat-map" id="seatMap"></div>
-        <p class="seat-legend">
-          <span class="seat-dot seat-free"></span> Available
-          <span class="seat-dot seat-occupied"></span> Occupied
-          <span class="seat-dot seat-selected"></span> Your Seats
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- RSVP CONFIRMATION MODAL -->
-  <div class="rsvp-modal" id="rsvpModal">
-    <div class="rsvp-modal-card">
-      <button class="rsvp-modal-close" id="rsvpModalClose">&#10005;</button>
-      <div class="rsvp-modal-icon">✦</div>
-      <h2 id="rsvpModalTitle">You're seated!</h2>
-      <p id="rsvpModalText"></p>
-      <div class="rsvp-modal-table">
-        <div class="rsvp-modal-table-num" id="rsvpModalTable">T1</div>
-        <div class="rsvp-modal-table-label">Table</div>
-      </div>
-      <div class="rsvp-modal-details" id="rsvpModalDetails"></div>
-      <div class="rsvp-modal-seats" id="rsvpModalSeats"></div>
-      <p class="rsvp-modal-email" id="rsvpModalEmail"></p>
-      <button class="rsvp-modal-btn" id="rsvpModalDone">Done</button>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="divider-ornament">❧</div>
     <h2 class="footer-names">Oluwaseun &amp; Robertson</h2>
