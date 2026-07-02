@@ -38,9 +38,11 @@
       <li><a href="#hero">Home</a></li>
       <li><a href="#story">Our Story</a></li>
       <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#menu">Menu</a></li>
       <li><a href="#details">Details</a></li>
       <li><a href="#timeline">Timeline</a></li>
       <li><a href="#travel">Travel & Stay</a></li>
+      <li><a href="#wishes">Wishes</a></li>
       <li><a href="#faq">FAQ</a></li>
       <li><a href="#rsvp">RSVP</a></li>
     </ul>
@@ -134,28 +136,24 @@
     <p class="parallax-ref">Ecclesiastes 3:11</p>
   </div>
 
-  <!-- PHOTO GALLERY: HORIZONTAL FILM STRIP -->
+  <!-- PHOTO GALLERY: MASONRY GRID -->
   <section class="gallery" id="gallery">
     <div class="gallery-header">
       <div class="divider-ornament">✦</div>
       <h2 class="section-title">Our Moments</h2>
       <p class="lead-text">A glimpse into our journey together</p>
     </div>
-    <div class="film-strip-wrap">
-      <div class="film-strip" id="filmStrip">
-        <div class="film-frame film-feature" data-src="images/photo7.jpg"><img src="images/photo7.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-        <div class="film-frame" data-src="images/photo3.jpg"><img src="images/photo3.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-        <div class="film-frame" data-src="images/photo1.jpg"><img src="images/photo1.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-        <div class="film-frame film-feature" data-src="images/photo4.jpg"><img src="images/photo4.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-        <div class="film-frame" data-src="images/photo6.jpg"><img src="images/photo6.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-        <div class="film-frame" data-src="images/photo2.jpg"><img src="images/photo2.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-        <div class="film-frame" data-src="images/photo10.jpg"><img src="images/photo10.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-        <div class="film-frame film-feature" data-src="images/photo5.jpg"><img src="images/photo5.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-        <div class="film-frame" data-src="images/photo9.jpg"><img src="images/photo9.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-        <div class="film-frame" data-src="images/photo8.jpg"><img src="images/photo8.jpg" alt="" loading="lazy" /><div class="film-overlay">✦</div></div>
-      </div>
-      <button class="strip-btn strip-prev" id="stripPrev">&#8249;</button>
-      <button class="strip-btn strip-next" id="stripNext">&#8250;</button>
+    <div class="masonry-gallery" id="masonryGallery">
+      <div class="masonry-item masonry-tall" data-src="images/photo7.jpg"><img src="images/photo7.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+      <div class="masonry-item" data-src="images/photo3.jpg"><img src="images/photo3.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+      <div class="masonry-item masonry-wide" data-src="images/photo1.jpg"><img src="images/photo1.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+      <div class="masonry-item" data-src="images/photo4.jpg"><img src="images/photo4.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+      <div class="masonry-item masonry-tall" data-src="images/photo6.jpg"><img src="images/photo6.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+      <div class="masonry-item" data-src="images/photo2.jpg"><img src="images/photo2.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+      <div class="masonry-item masonry-wide" data-src="images/photo10.jpg"><img src="images/photo10.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+      <div class="masonry-item" data-src="images/photo5.jpg"><img src="images/photo5.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+      <div class="masonry-item masonry-tall" data-src="images/photo9.jpg"><img src="images/photo9.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+      <div class="masonry-item" data-src="images/photo8.jpg"><img src="images/photo8.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
     </div>
   </section>
 
@@ -295,6 +293,104 @@
           width="100%" height="420" style="border:0;" allowfullscreen loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
+    </div>
+  </section>
+
+  <!-- FOOD MENU -->
+  <section class="menu-section section-dark" id="menu">
+    <div class="container">
+      <div class="divider-ornament">✦</div>
+      <h2 class="section-title">Our Menu</h2>
+      <p class="lead-text">A taste of what awaits you at our celebration</p>
+      <div class="menu-tabs">
+        <button class="menu-tab active" data-course="starters">Starters</button>
+        <button class="menu-tab" data-course="mains">Mains</button>
+        <button class="menu-tab" data-course="desserts">Desserts</button>
+        <button class="menu-tab" data-course="drinks">Drinks</button>
+      </div>
+      <div class="menu-content" id="menuContent">
+        <div class="menu-page active" data-course="starters">
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Pepper Soup</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Spiced Nigerian pepper soup with catfish or goat meat</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Puff Puff &amp; Pepper Sauce</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Fried sweet dough balls served with a spicy tomato dip</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Moin Moin</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Steamed bean pudding with boiled egg and fish</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Canap&eacute; Selection</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Assorted mini canap&eacute;s served during reception</p>
+          </div>
+        </div>
+        <div class="menu-page" data-course="mains">
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Jollof Rice &amp; Assorted Meats</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Signature Nigerian jollof rice with beef, chicken &amp; plantain</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Fried Rice &amp; Chicken</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Fried rice with vegetables and grilled chicken</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Amala &amp; Ewedu with Stew</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Traditional yam flour with ewedu and rich assorted stew</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Suya Platter</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Spiced grilled beef skewers with onions and tomatoes</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Grilled Fish</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Whole grilled fish with pepper sauce and side salad</p>
+          </div>
+        </div>
+        <div class="menu-page" data-course="desserts">
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Wedding Cake</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Multi-tiered fruit cake with royal icing</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Chin Chin &amp; Small Chops</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Crispy fried snack bites and assorted party small chops</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Fresh Fruit Platter</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Seasonal fresh fruits beautifully arranged</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Ice Cream Station</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Assorted ice cream flavours with toppings</p>
+          </div>
+        </div>
+        <div class="menu-page" data-course="drinks">
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Chapman</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Classic Nigerian cocktail with fruits and grenadine</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Palm Wine</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Traditional fresh palm wine served chilled</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Soft Drinks &amp; Juices</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Assorted soft drinks and fresh fruit juices</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Wine &amp; Champagne</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Selection of red, white wine and champagne for toasting</p>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-head"><h4>Tea &amp; Coffee</h4><span class="menu-dots"></span><span class="menu-price">✦</span></div>
+            <p>Freshly brewed tea and coffee</p>
+          </div>
+        </div>
+      </div>
+      <p class="menu-note">Please indicate any dietary requirements or allergies in your RSVP.</p>
     </div>
   </section>
 
@@ -499,6 +595,21 @@
         </div>
         <p class="form-note" id="formStatus"></p>
       </form>
+      <!-- Table assignment confirmation card -->
+      <div class="table-confirm" id="tableConfirm">
+        <div class="table-confirm-icon">✦</div>
+        <div class="table-confirm-body">
+          <h3 id="tableConfirmTitle">You're seated!</h3>
+          <p id="tableConfirmText"></p>
+          <div class="table-confirm-details" id="tableConfirmDetails"></div>
+        </div>
+      </div>
+      <!-- Table availability visual -->
+      <div class="table-overview" id="tableOverview">
+        <h4>Table Seating Overview</h4>
+        <div class="table-grid" id="tableGrid"></div>
+        <p class="table-legend"><span class="dot dot-free"></span> Available &nbsp; <span class="dot dot-full"></span> Full &nbsp; <span class="dot dot-yours"></span> Your Table</p>
+      </div>
     </div>
   </section>
 
@@ -513,6 +624,21 @@
     </div>
     <p class="footer-verse">"He has made everything beautiful in its time." — Ecclesiastes 3:11</p>
   </footer>
+
+  <!-- MUSIC PLAYER -->
+  <div class="music-player" id="musicPlayer">
+    <button class="music-toggle" id="musicToggle" aria-label="Play music">
+      <svg class="music-icon-play" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <svg class="music-icon-pause" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+    </button>
+    <div class="music-info">
+      <span class="music-title">The Vow</span>
+      <span class="music-artist">Timi Dakolo</span>
+    </div>
+    <div class="music-bars" id="musicBars">
+      <span></span><span></span><span></span><span></span>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

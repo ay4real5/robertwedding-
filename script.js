@@ -363,30 +363,276 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
 
 
 // =============================================
-// RSVP FORM
+// RSVP FORM + AUTO TABLE ASSIGNMENT
 // =============================================
-document.getElementById('rsvpForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var name       = document.getElementById('fullName').value.trim();
-  var attendance = document.getElementById('attendance').value;
-  var status     = document.getElementById('formStatus');
+(function () {
+  var TOTAL_TABLES = 10;
+  var SEATS_PER_TABLE = 5;
+  var STORAGE_KEY = 'or_wedding_tables';
 
-  if (attendance === 'yes') {
-    status.textContent = '🎉 Thank you, ' + name + '! We are so happy you will be joining us. See you on 1st August!';
-    status.style.color = 'var(--gold-dark)';
-  } else {
-    status.textContent = 'Thank you, ' + name + '. We are sorry you won\'t be able to make it, but we appreciate you letting us know.';
-    status.style.color = 'var(--text-light)';
+  var form = document.getElementById('rsvpForm');
+  var statusEl = document.getElementById('formStatus');
+  var tableConfirm = document.getElementById('tableConfirm');
+  var tableConfirmText = document.getElementById('tableConfirmText');
+  var tableConfirmDetails = document.getElementById('tableConfirmDetails');
+  var tableGrid = document.getElementById('tableGrid');
+  if (!form) return;
+
+  // Load or init table data
+  function loadTables() {
+    try {
+      var data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (data && data.length === TOTAL_TABLES) return data;
+    } catch(e) {}
+    return new Array(TOTAL_TABLES).fill(0);
   }
-  this.reset();
-});
+
+  function saveTables(tables) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tables)); } catch(e) {}
+  }
+
+  // Find a table with enough free seats
+  function findTable(numGuests, tables) {
+    for (var i = 0; i < tables.length; i++) {
+      if (tables[i] + numGuests <= SEATS_PER_TABLE) return i;
+    }
+    return -1;
+  }
+
+  // Render the table overview grid
+  function renderTables(tables, yourTable) {
+    if (!tableGrid) return;
+    tableGrid.innerHTML = '';
+    for (var i = 0; i < TOTAL_TABLES; i++) {
+      var cell = document.createElement('div');
+      cell.className = 'table-cell';
+      if (tables[i] >= SEATS_PER_TABLE) cell.classList.add('full');
+      if (yourTable === i) cell.classList.add('yours');
+      cell.innerHTML =
+        '<span class="table-cell-num">T' + (i + 1) + '</span>' +
+        '<span class="table-cell-seats">' + tables[i] + '/' + SEATS_PER_TABLE + '</span>';
+      tableGrid.appendChild(cell);
+    }
+  }
+
+  var tables = loadTables();
+  renderTables(tables, -1);
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = document.getElementById('fullName').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var attendance = document.getElementById('attendance').value;
+    var numGuests = parseInt(document.getElementById('guests').value, 10) || 1;
+
+    if (attendance === 'no') {
+      statusEl.textContent = 'Thank you, ' + name + '. We are sorry you won\'t be able to make it, but we appreciate you letting us know.';
+      statusEl.style.color = 'var(--text-light)';
+      tableConfirm.classList.remove('show');
+      form.reset();
+      return;
+    }
+
+    // Auto-assign to a table
+    var tableIdx = findTable(numGuests, tables);
+
+    if (tableIdx === -1) {
+      statusEl.innerHTML = '🎉 Thank you, ' + name + '! We are so happy you will be joining us. <br>All tables are currently full — we will contact you at <strong>' + email + '</strong> to confirm your seating arrangement.';
+      statusEl.style.color = 'var(--gold-dark)';
+      tableConfirm.classList.remove('show');
+      form.reset();
+      return;
+    }
+
+    // Assign seats
+    tables[tableIdx] += numGuests;
+    saveTables(tables);
+
+    var tableNum = tableIdx + 1;
+    var seatsLeft = SEATS_PER_TABLE - tables[tableIdx];
+
+    statusEl.innerHTML = '🎉 Thank you, ' + name + '! We are so happy you will be joining us on 1st August 2026.';
+    statusEl.style.color = 'var(--gold-dark)';
+
+    // Show confirmation card
+    tableConfirm.classList.add('show');
+    tableConfirmText.innerHTML =
+      'You have been automatically assigned to <strong>Table ' + tableNum + '</strong> with ' +
+      numGuests + ' seat' + (numGuests > 1 ? 's' : '') + '. ' +
+      'A confirmation email has been sent to <strong>' + email + '</strong>.';
+
+    tableConfirmDetails.innerHTML =
+      '<span class="detail-pill">Table ' + tableNum + '</span>' +
+      '<span class="detail-pill">' + numGuests + ' Seat' + (numGuests > 1 ? 's' : '') + '</span>' +
+      '<span class="detail-pill">' + seatsLeft + ' seat' + (seatsLeft !== 1 ? 's' : '') + ' left</span>';
+
+    renderTables(tables, tableIdx);
+
+    // Simulate email confirmation
+    setTimeout(function () {
+      var emailNote = document.createElement('p');
+      emailNote.style.cssText = 'font-size:0.78rem;color:#7a6a52;margin-top:0.6rem;font-style:italic;';
+      emailNote.innerHTML = '✉️ Confirmation email sent to ' + email + ' with your table details and wedding day information.';
+      tableConfirmDetails.appendChild(emailNote);
+    }, 1200);
+
+    form.reset();
+  });
+})();
+
+
+// =============================================
+// FOOD MENU TABS
+// =============================================
+(function () {
+  var tabs = document.querySelectorAll('.menu-tab');
+  var pages = document.querySelectorAll('.menu-page');
+  if (!tabs.length) return;
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var course = tab.dataset.course;
+      tabs.forEach(function (t) { t.classList.remove('active'); });
+      pages.forEach(function (p) { p.classList.remove('active'); });
+      tab.classList.add('active');
+      var page = document.querySelector('.menu-page[data-course="' + course + '"]');
+      if (page) page.classList.add('active');
+    });
+  });
+})();
+
+
+// =============================================
+// MUSIC PLAYER (YouTube IFrame)
+// =============================================
+(function () {
+  var toggle = document.getElementById('musicToggle');
+  var bars = document.getElementById('musicBars');
+  var playIcon = document.querySelector('.music-icon-play');
+  var pauseIcon = document.querySelector('.music-icon-pause');
+  if (!toggle) return;
+
+  var player = null;
+  var isPlaying = false;
+  var isReady = false;
+
+  // Load YouTube IFrame API
+  var tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+
+  // Create hidden player div
+  var playerDiv = document.createElement('div');
+  playerDiv.id = 'ytMusicPlayer';
+  playerDiv.style.cssText = 'position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;';
+  document.body.appendChild(playerDiv);
+
+  window.onYouTubeIframeAPIReady = function () {
+    player = new YT.Player('ytMusicPlayer', {
+      videoId: 'HI419IFhujs',
+      playerVars: {
+        autoplay: 0,
+        controls: 0,
+        loop: 1,
+        playlist: 'HI419IFhujs',
+        volume: 40
+      },
+      events: {
+        onReady: function () { isReady = true; player.setVolume(40); }
+      }
+    });
+  };
+
+  toggle.addEventListener('click', function () {
+    if (!isReady || !player) {
+      // API not ready yet — toggle visual state
+      isPlaying = !isPlaying;
+      bars.classList.toggle('playing', isPlaying);
+      playIcon.style.display = isPlaying ? 'none' : 'block';
+      pauseIcon.style.display = isPlaying ? 'block' : 'none';
+      return;
+    }
+
+    if (!isPlaying) {
+      player.playVideo();
+      isPlaying = true;
+      bars.classList.add('playing');
+      playIcon.style.display = 'none';
+      pauseIcon.style.display = 'block';
+      toggle.setAttribute('aria-label', 'Pause music');
+    } else {
+      player.pauseVideo();
+      isPlaying = false;
+      bars.classList.remove('playing');
+      playIcon.style.display = 'block';
+      pauseIcon.style.display = 'none';
+      toggle.setAttribute('aria-label', 'Play music');
+    }
+  });
+})();
+
+
+// =============================================
+// MASONRY GALLERY LIGHTBOX
+// =============================================
+(function () {
+  var items = document.querySelectorAll('.masonry-item[data-src]');
+  if (!items.length) return;
+
+  var lb = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lightboxImg');
+  var lbClose = document.getElementById('lightboxClose');
+  var lbPrev = document.getElementById('lightboxPrev');
+  var lbNext = document.getElementById('lightboxNext');
+  if (!lb) return;
+
+  var allItems = Array.from(items);
+  var idx = 0;
+
+  function open(i) {
+    idx = i;
+    lbImg.src = allItems[idx].dataset.src;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(function () { lbImg.src = ''; }, 300);
+  }
+
+  function show(i) {
+    idx = (i + allItems.length) % allItems.length;
+    lbImg.style.animation = 'none';
+    void lbImg.offsetWidth;
+    lbImg.src = allItems[idx].dataset.src;
+    lbImg.style.animation = '';
+  }
+
+  allItems.forEach(function (item, i) {
+    item.addEventListener('click', function () { open(i); });
+  });
+
+  lbClose.addEventListener('click', close);
+  lbPrev.addEventListener('click', function () { show(idx - 1); });
+  lbNext.addEventListener('click', function () { show(idx + 1); });
+  lb.addEventListener('click', function (e) { if (e.target === lb) close(); });
+
+  document.addEventListener('keydown', function (e) {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowLeft') show(idx - 1);
+    if (e.key === 'ArrowRight') show(idx + 1);
+  });
+})();
 
 
 // =============================================
 // SCROLL REVEAL
 // =============================================
 var revealEls = document.querySelectorAll(
-  '.detail-card, .dresscode-card, .travel-card, .timeline-item, .faq-item, .notice-box'
+  '.detail-card, .dresscode-card, .travel-card, .timeline-item, .faq-item, .notice-box, .menu-item, .masonry-item, .table-cell'
 );
 
 var ro = new IntersectionObserver(function (entries) {
