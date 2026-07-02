@@ -11,6 +11,20 @@
 </head>
 <body>
 
+  <!-- ENTRANCE OVERLAY — starts music when user enters -->
+  <div class="entrance-overlay" id="entranceOverlay">
+    <div class="entrance-card">
+      <div class="entrance-ornament">✦</div>
+      <h2 class="entrance-names">Oluwaseun<span>&amp;</span>Robertson</h2>
+      <p class="entrance-date">1st August 2026 · Glasgow, Scotland</p>
+      <button class="entrance-btn" id="entranceBtn">
+        <span>Enter Site</span>
+        <span>✦</span>
+      </button>
+      <p class="entrance-note">Music will play to set the mood</p>
+    </div>
+  </div>
+
   <!-- SAVE THE DATE POPUP -->
   <div class="std-overlay" id="stdOverlay">
     <div class="std-card" id="stdCard">
@@ -136,24 +150,61 @@
     <p class="parallax-ref">Ecclesiastes 3:11</p>
   </div>
 
-  <!-- PHOTO GALLERY: MASONRY GRID -->
+  <!-- PHOTO GALLERY: CURATED BENTO GRID -->
   <section class="gallery" id="gallery">
     <div class="gallery-header">
       <div class="divider-ornament">✦</div>
       <h2 class="section-title">Our Moments</h2>
-      <p class="lead-text">A glimpse into our journey together</p>
+      <p class="lead-text">A curated glimpse into our journey together</p>
     </div>
-    <div class="masonry-gallery" id="masonryGallery">
-      <div class="masonry-item masonry-tall" data-src="images/photo7.jpg"><img src="images/photo7.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
-      <div class="masonry-item" data-src="images/photo3.jpg"><img src="images/photo3.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
-      <div class="masonry-item masonry-wide" data-src="images/photo1.jpg"><img src="images/photo1.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
-      <div class="masonry-item" data-src="images/photo4.jpg"><img src="images/photo4.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
-      <div class="masonry-item masonry-tall" data-src="images/photo6.jpg"><img src="images/photo6.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
-      <div class="masonry-item" data-src="images/photo2.jpg"><img src="images/photo2.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
-      <div class="masonry-item masonry-wide" data-src="images/photo10.jpg"><img src="images/photo10.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
-      <div class="masonry-item" data-src="images/photo5.jpg"><img src="images/photo5.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
-      <div class="masonry-item masonry-tall" data-src="images/photo9.jpg"><img src="images/photo9.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
-      <div class="masonry-item" data-src="images/photo8.jpg"><img src="images/photo8.jpg" alt="" loading="lazy" /><div class="masonry-caption">✦</div></div>
+    <div class="bento-gallery" id="bentoGallery">
+      <!-- Row 1: large feature + two stacked -->
+      <div class="bento-item bento-feature" data-src="images/photo7.jpg">
+        <img src="images/photo7.jpg" alt="" loading="lazy" />
+        <div class="bento-overlay">
+          <span class="bento-icon">✦</span>
+          <span class="bento-title">Forever Begins</span>
+        </div>
+      </div>
+      <div class="bento-item" data-src="images/photo3.jpg">
+        <img src="images/photo3.jpg" alt="" loading="lazy" />
+        <div class="bento-overlay"><span class="bento-icon">✦</span></div>
+      </div>
+      <div class="bento-item" data-src="images/photo1.jpg">
+        <img src="images/photo1.jpg" alt="" loading="lazy" />
+        <div class="bento-overlay"><span class="bento-icon">✦</span></div>
+      </div>
+
+      <!-- Row 2: three balanced tiles -->
+      <div class="bento-item bento-wide" data-src="images/photo4.jpg">
+        <img src="images/photo4.jpg" alt="" loading="lazy" />
+        <div class="bento-overlay"><span class="bento-icon">✦</span></div>
+      </div>
+      <div class="bento-item" data-src="images/photo6.jpg">
+        <img src="images/photo6.jpg" alt="" loading="lazy" />
+        <div class="bento-overlay"><span class="bento-icon">✦</span></div>
+      </div>
+      <div class="bento-item" data-src="images/photo2.jpg">
+        <img src="images/photo2.jpg" alt="" loading="lazy" />
+        <div class="bento-overlay"><span class="bento-icon">✦</span></div>
+      </div>
+
+      <!-- Row 3: feature right + two stacked left -->
+      <div class="bento-item" data-src="images/photo10.jpg">
+        <img src="images/photo10.jpg" alt="" loading="lazy" />
+        <div class="bento-overlay"><span class="bento-icon">✦</span></div>
+      </div>
+      <div class="bento-item" data-src="images/photo5.jpg">
+        <img src="images/photo5.jpg" alt="" loading="lazy" />
+        <div class="bento-overlay"><span class="bento-icon">✦</span></div>
+      </div>
+      <div class="bento-item bento-feature-right" data-src="images/photo9.jpg">
+        <img src="images/photo9.jpg" alt="" loading="lazy" />
+        <div class="bento-overlay">
+          <span class="bento-icon">✦</span>
+          <span class="bento-title">Love in Bloom</span>
+        </div>
+      </div>
     </div>
   </section>
 

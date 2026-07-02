@@ -618,11 +618,13 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
   var bars = document.getElementById('musicBars');
   var playIcon = document.querySelector('.music-icon-play');
   var pauseIcon = document.querySelector('.music-icon-pause');
-  if (!toggle) return;
+  var entranceBtn = document.getElementById('entranceBtn');
+  var entranceOverlay = document.getElementById('entranceOverlay');
 
   var player = null;
   var isPlaying = false;
   var isReady = false;
+  var musicStarted = false;
 
   // Load YouTube IFrame API
   var tag = document.createElement('script');
@@ -635,6 +637,29 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
   playerDiv.style.cssText = 'position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;';
   document.body.appendChild(playerDiv);
 
+  function updateMusicUI(playing) {
+    isPlaying = playing;
+    if (bars) bars.classList.toggle('playing', playing);
+    if (playIcon) playIcon.style.display = playing ? 'none' : 'block';
+    if (pauseIcon) pauseIcon.style.display = playing ? 'block' : 'none';
+    if (toggle) toggle.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
+  }
+
+  function startMusic() {
+    if (player && isReady) {
+      player.playVideo();
+      updateMusicUI(true);
+    } else {
+      musicStarted = true;
+      updateMusicUI(true);
+    }
+  }
+
+  function pauseMusic() {
+    if (player && isReady) player.pauseVideo();
+    updateMusicUI(false);
+  }
+
   window.onYouTubeIframeAPIReady = function () {
     player = new YT.Player('ytMusicPlayer', {
       videoId: 'HI419IFhujs',
@@ -646,45 +671,49 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
         volume: 40
       },
       events: {
-        onReady: function () { isReady = true; player.setVolume(40); }
+        onReady: function () {
+          isReady = true;
+          player.setVolume(40);
+          if (musicStarted) {
+            player.playVideo();
+            updateMusicUI(true);
+          }
+        }
       }
     });
   };
 
-  toggle.addEventListener('click', function () {
-    if (!isReady || !player) {
-      // API not ready yet — toggle visual state
-      isPlaying = !isPlaying;
-      bars.classList.toggle('playing', isPlaying);
-      playIcon.style.display = isPlaying ? 'none' : 'block';
-      pauseIcon.style.display = isPlaying ? 'block' : 'none';
-      return;
-    }
+  // Entrance overlay starts the music
+  if (entranceBtn && entranceOverlay) {
+    entranceBtn.addEventListener('click', function () {
+      startMusic();
+      entranceOverlay.classList.add('hide');
+      document.body.style.overflow = '';
+      // Show STD popup if still pending
+      var stdOverlay = document.getElementById('stdOverlay');
+      if (stdOverlay) stdOverlay.style.display = 'flex';
+    });
+  }
 
-    if (!isPlaying) {
-      player.playVideo();
-      isPlaying = true;
-      bars.classList.add('playing');
-      playIcon.style.display = 'none';
-      pauseIcon.style.display = 'block';
-      toggle.setAttribute('aria-label', 'Pause music');
-    } else {
-      player.pauseVideo();
-      isPlaying = false;
-      bars.classList.remove('playing');
-      playIcon.style.display = 'block';
-      pauseIcon.style.display = 'none';
-      toggle.setAttribute('aria-label', 'Play music');
-    }
-  });
+  // Floating toggle button
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      if (!isReady || !player) return;
+      if (!isPlaying) {
+        startMusic();
+      } else {
+        pauseMusic();
+      }
+    });
+  }
 })();
 
 
 // =============================================
-// MASONRY GALLERY LIGHTBOX
+// BENTO GALLERY LIGHTBOX
 // =============================================
 (function () {
-  var items = document.querySelectorAll('.masonry-item[data-src]');
+  var items = document.querySelectorAll('.bento-item[data-src]');
   if (!items.length) return;
 
   var lb = document.getElementById('lightbox');
@@ -740,7 +769,7 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
 // SCROLL REVEAL
 // =============================================
 var revealEls = document.querySelectorAll(
-  '.detail-card, .dresscode-card, .travel-card, .timeline-item, .faq-item, .notice-box, .menu-item, .masonry-item, .table-cell'
+  '.detail-card, .dresscode-card, .travel-card, .timeline-item, .faq-item, .notice-box, .menu-item, .bento-item, .seat-table'
 );
 
 var ro = new IntersectionObserver(function (entries) {
