@@ -370,6 +370,15 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
   var SEATS_PER_TABLE = 5;
   var STORAGE_KEY = 'or_wedding_tables';
 
+  // EmailJS credentials
+  var EMAILJS_PUBLIC_KEY = 'xi_qSKReYZ-rU3djz';
+  var EMAILJS_SERVICE_ID = 'service_x7n5bug';
+  var EMAILJS_TEMPLATE_ID = 'template_ma9wbc5';
+  var emailjsReady = (typeof emailjs !== 'undefined');
+  if (emailjsReady && EMAILJS_PUBLIC_KEY.indexOf('YOUR_') !== 0) {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+  }
+
   var step1 = document.getElementById('rsvpStep1');
   var step2 = document.getElementById('rsvpStep2');
   var declineStep = document.getElementById('rsvpDecline');
@@ -523,7 +532,37 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
       modalSeats.appendChild(seat);
     });
 
-    modalEmail.innerHTML = '✉️ Confirmation sent to <strong>' + email + '</strong>';
+    modalEmail.innerHTML = '✉️ Sending confirmation to <strong>' + email + '</strong>...';
+  }
+
+  // Send confirmation email via EmailJS
+  function sendConfirmationEmail(name, email, tableIdx, seatNumbers, numGuests, plusOneName, dietary, message) {
+    if (!emailjsReady || EMAILJS_PUBLIC_KEY.indexOf('YOUR_') === 0) return;
+
+    var templateParams = {
+      to_name: name,
+      to_email: email,
+      table_number: tableIdx + 1,
+      seat_numbers: seatNumbers.map(function (s) { return 'S' + s; }).join(', '),
+      num_guests: numGuests,
+      plus_one_name: plusOneName || 'N/A',
+      dietary: dietary || 'None provided',
+      message: message || 'None provided',
+      reply_to: 'rsvp@theORwedding.com'
+    };
+
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+      .then(function () {
+        if (modalEmail) {
+          modalEmail.innerHTML = '✉️ Confirmation sent to <strong>' + email + '</strong>';
+        }
+      })
+      .catch(function (err) {
+        console.error('EmailJS failed:', err);
+        if (modalEmail) {
+          modalEmail.innerHTML = '✉️ Please save your table details — <strong>' + email + '</strong>';
+        }
+      });
   }
 
   function closeModal() {
@@ -556,6 +595,10 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
         return;
       }
 
+      // Gather remaining fields for email
+      var dietary = document.getElementById('dietary').value.trim();
+      var message = document.getElementById('message').value.trim();
+
       // Assign seats
       var seatNumbers = getSeatNumbers(tableIdx, numGuests, tables);
       tables[tableIdx] += numGuests;
@@ -566,6 +609,9 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
 
       // Show beautiful modal
       showModal(name, email, tableIdx, seatNumbers, numGuests);
+
+      // Send confirmation email
+      sendConfirmationEmail(name, email, tableIdx, seatNumbers, numGuests, plusOneName, dietary, message);
 
       // Update live seat map
       renderSeatMap(tables, tableIdx, 0);
