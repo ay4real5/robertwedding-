@@ -1295,6 +1295,19 @@ blockquote {
   font-family: var(--font-serif);
 }
 
+.menu-subcategory {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 1.8rem 0 0.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(184,150,90,0.25);
+}
+
+.menu-page .menu-subcategory:first-child { margin-top: 0; }
+
 .menu-note {
   margin-top: 2rem;
   font-size: 0.78rem;
