@@ -745,6 +745,49 @@ blockquote {
 
 .rsvp-hidden { display: none; }
 
+.rsvp-progress {
+  margin-bottom: 2rem;
+}
+
+.rsvp-progress-track {
+  height: 4px;
+  background: #e8ddd0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.8rem;
+}
+
+.rsvp-progress-fill {
+  height: 100%;
+  width: 33%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.rsvp-progress-steps {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #b0a08a;
+}
+
+.rsvp-progress-steps span.active {
+  color: var(--gold-dark);
+  font-weight: 500;
+}
+
+.rsvp-step-hint {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  font-style: italic;
+  margin-top: -1.2rem;
+  margin-bottom: 1.8rem;
+}
+
 .rsvp-step-label {
   display: inline-block;
   font-size: 0.6rem;

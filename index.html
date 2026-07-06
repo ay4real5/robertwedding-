@@ -444,13 +444,25 @@
     <div class="container narrow">
       <div class="divider-ornament">✦</div>
       <h2 class="section-title">RSVP</h2>
-      <p class="lead-text">Kindly respond by <strong>1st July 2026</strong></p>
+      <p class="lead-text">Kindly respond by <strong>7th July 2026</strong></p>
 
       <div class="rsvp-smart">
+        <div class="rsvp-progress">
+          <div class="rsvp-progress-track">
+            <div class="rsvp-progress-fill" id="rsvpProgressFill"></div>
+          </div>
+          <div class="rsvp-progress-steps">
+            <span class="active" id="rsvpProgress1">Response</span>
+            <span id="rsvpProgress2">Details</span>
+            <span id="rsvpProgress3">Confirmation</span>
+          </div>
+        </div>
+
         <!-- Step 1: Response -->
         <div class="rsvp-step" id="rsvpStep1">
-          <div class="rsvp-step-label">Step 1</div>
+          <div class="rsvp-step-label">Step 1 of 2</div>
           <h3 class="rsvp-step-title">Will you be joining us?</h3>
+          <p class="rsvp-step-hint">Tap one below and we'll handle the rest.</p>
           <div class="rsvp-choice">
             <button type="button" class="rsvp-choice-btn rsvp-yes" data-response="yes">
               <span class="rsvp-choice-icon">✦</span>
@@ -465,8 +477,9 @@
 
         <!-- Step 2: Guest Details (hidden until yes) -->
         <div class="rsvp-step rsvp-hidden" id="rsvpStep2">
-          <div class="rsvp-step-label">Step 2</div>
+          <div class="rsvp-step-label">Step 2 of 2</div>
           <h3 class="rsvp-step-title">Guest Details</h3>
+          <p class="rsvp-step-hint">Fill in a few details and we'll reserve your seat instantly.</p>
           <form class="rsvp-form" id="rsvpForm">
             <div class="form-row">
               <div class="form-group">
@@ -516,6 +529,7 @@
         <!-- Decline message (hidden until no) -->
         <div class="rsvp-step rsvp-hidden" id="rsvpDecline">
           <div class="rsvp-decline-card">
+            <div class="rsvp-step-label">Step 2 of 2</div>
             <div class="rsvp-decline-icon">✧</div>
             <h3>We're sorry you can't make it</h3>
             <p>Thank you for letting us know. We appreciate your thoughtfulness.</p>

@@ -476,6 +476,21 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
   var selectedTable = -1;
   renderSeatMap(tables, -1, 0);
 
+  function updateProgress(step) {
+    var fill = document.getElementById('rsvpProgressFill');
+    var labels = [
+      document.getElementById('rsvpProgress1'),
+      document.getElementById('rsvpProgress2'),
+      document.getElementById('rsvpProgress3')
+    ];
+    if (!fill) return;
+    var widths = ['33%', '66%', '100%'];
+    fill.style.width = widths[step - 1] || '33%';
+    labels.forEach(function (el, i) {
+      if (el) el.classList.toggle('active', i < step);
+    });
+  }
+
   // Step 1: Yes / No choice
   step1.querySelectorAll('.rsvp-choice-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -485,9 +500,19 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
         step2.classList.remove('rsvp-hidden');
         seatPreview.classList.remove('rsvp-hidden');
         renderSeatMap(tables, selectedTable, selectedNumGuests);
+        updateProgress(2);
+        setTimeout(function () {
+          var firstInput = document.getElementById('fullName');
+          if (firstInput) firstInput.focus();
+        }, 100);
       } else {
         declineStep.classList.remove('rsvp-hidden');
         seatPreview.classList.add('rsvp-hidden');
+        updateProgress(2);
+        setTimeout(function () {
+          var firstInput = document.getElementById('declineName');
+          if (firstInput) firstInput.focus();
+        }, 100);
       }
     });
   });
@@ -609,6 +634,9 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
 
       // Show beautiful modal
       showModal(name, email, tableIdx, seatNumbers, numGuests);
+
+      // Mark confirmation step complete
+      updateProgress(3);
 
       // Send confirmation email
       sendConfirmationEmail(name, email, tableIdx, seatNumbers, numGuests, plusOneName, dietary, message);
