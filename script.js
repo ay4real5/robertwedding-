@@ -368,6 +368,7 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
 (function () {
   var TOTAL_TABLES = 10;
   var SEATS_PER_TABLE = 5;
+  var RESERVED_TABLES = 2; // Tables 1 and 2 are reserved; guests start from Table 3
   var STORAGE_KEY = 'or_wedding_tables';
 
   // EmailJS credentials
@@ -419,9 +420,9 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tables)); } catch(e) {}
   }
 
-  // Find best table with enough free seats
+  // Find best table with enough free seats (skip reserved tables 1 & 2)
   function findTable(numGuests, tables) {
-    for (var i = 0; i < tables.length; i++) {
+    for (var i = RESERVED_TABLES; i < tables.length; i++) {
       if (tables[i] + numGuests <= SEATS_PER_TABLE) return i;
     }
     return -1;
@@ -442,16 +443,22 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
     if (!seatMap) return;
     seatMap.innerHTML = '';
     var totalGuests = tables.reduce(function(a, b) { return a + b; }, 0);
-    var remaining = TOTAL_TABLES * SEATS_PER_TABLE - totalGuests;
+    var guestTotal = (TOTAL_TABLES - RESERVED_TABLES) * SEATS_PER_TABLE;
+    var guestRemaining = 0;
+    for (var i = RESERVED_TABLES; i < tables.length; i++) {
+      guestRemaining += SEATS_PER_TABLE - tables[i];
+    }
     if (seatPreviewStatus) {
-      seatPreviewStatus.textContent = remaining + ' of ' + (TOTAL_TABLES * SEATS_PER_TABLE) + ' seats available';
+      seatPreviewStatus.textContent = guestRemaining + ' of ' + guestTotal + ' guest seats available';
     }
 
     for (var t = 0; t < TOTAL_TABLES; t++) {
+      var isReserved = t < RESERVED_TABLES;
       var table = document.createElement('div');
       table.className = 'seat-table';
+      if (isReserved) table.classList.add('reserved');
       if (selectedTable === t) table.classList.add('active');
-      table.innerHTML = '<div class="seat-table-label">Table ' + (t + 1) + '</div>';
+      table.innerHTML = '<div class="seat-table-label">' + (isReserved ? 'Reserved' : 'Table ' + (t + 1)) + '</div>';
       var seatsWrap = document.createElement('div');
       seatsWrap.className = 'seat-table-seats';
 
@@ -459,7 +466,9 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
       for (var s = 0; s < SEATS_PER_TABLE; s++) {
         var seat = document.createElement('span');
         seat.className = 'seat-circle';
-        if (s < tables[t]) {
+        if (isReserved) {
+          seat.classList.add('reserved');
+        } else if (s < tables[t]) {
           seat.classList.add('occupied');
         } else if (s < tables[t] + previewGuests) {
           seat.classList.add('selected');
@@ -614,7 +623,7 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
       var tableIdx = findTable(numGuests, tables);
 
       if (tableIdx === -1) {
-        statusEl.innerHTML = '🎉 Thank you, ' + name + '! We are so happy you will be joining us. <br>All tables are currently full — we will contact you at <strong>' + email + '</strong> to confirm your seating arrangement.';
+        statusEl.innerHTML = '🎉 Thank you, ' + name + '! We are so happy you will be joining us. <br>All guest tables are currently full — we will contact you at <strong>' + email + '</strong> to confirm your seating arrangement.';
         statusEl.style.color = 'var(--gold-dark)';
         form.reset();
         return;

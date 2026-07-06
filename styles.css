@@ -929,6 +929,17 @@ blockquote {
   transition: all 0.3s ease;
 }
 
+.seat-table.reserved {
+  background: #f0ece4;
+  border-color: #d8cfc3;
+  opacity: 0.85;
+}
+
+.seat-table.reserved .seat-table-label {
+  color: #9a8870;
+  font-weight: 600;
+}
+
 .seat-table-label {
   font-size: 0.6rem;
   letter-spacing: 0.1em;
@@ -936,6 +947,11 @@ blockquote {
   color: var(--gold-dark);
   margin-bottom: 0.5rem;
   font-weight: 500;
+}
+
+.seat-circle.reserved {
+  background: #d8cfc3;
+  border-color: #c8bfb3;
 }
 
 .seat-table-seats {
