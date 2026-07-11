@@ -526,12 +526,21 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
     });
   });
 
-  // Dynamic plus-one field
+  // Dynamic additional-guest names field
   if (guestSelect) {
     guestSelect.addEventListener('change', function () {
       selectedNumGuests = parseInt(this.value, 10) || 1;
-      if (selectedNumGuests === 2) {
+      var plusOneLabel = document.getElementById('plusOneLabel');
+      var plusOneInput = document.getElementById('plusOneName');
+      if (selectedNumGuests >= 2) {
         plusOneGroup.classList.remove('rsvp-hidden');
+        if (selectedNumGuests === 2) {
+          if (plusOneLabel) plusOneLabel.textContent = 'Plus One Full Name';
+          if (plusOneInput) plusOneInput.placeholder = "Enter your guest's full name";
+        } else {
+          if (plusOneLabel) plusOneLabel.textContent = 'Names of Your ' + (selectedNumGuests - 1) + ' Additional Guests';
+          if (plusOneInput) plusOneInput.placeholder = 'e.g. Jane Doe, John Doe' + (selectedNumGuests > 3 ? ', ...' : '');
+        }
       } else {
         plusOneGroup.classList.add('rsvp-hidden');
       }
