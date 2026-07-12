@@ -688,13 +688,6 @@ blockquote {
    ============================================= */
 .gifts { text-align: center; }
 .gifts p { color: var(--text-light); max-width: 600px; margin: 0.5rem auto; }
-.gift-account { max-width: 420px; margin: 2rem auto 0; padding: 1.8rem 2rem; border: 1px solid rgba(184,150,90,0.4); border-radius: 8px; background: rgba(184,150,90,0.06); }
-.gift-account h3 { font-family: var(--font-serif); color: var(--gold); font-size: 1.15rem; margin-bottom: 1rem; }
-.gift-account ul { list-style: none; padding: 0; margin: 0; }
-.gift-account li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(184,150,90,0.15); }
-.gift-account li:last-child { border-bottom: none; }
-.gift-account li span { color: var(--text-light); font-size: 0.9rem; }
-.gift-account li strong { color: var(--gold-dark); letter-spacing: 0.03em; }
 
 /* =============================================
    TRAVEL & STAY
@@ -723,10 +716,17 @@ blockquote {
 .faq-question::after { content: '+'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 1.4rem; color: var(--gold); transition: transform 0.3s; font-family: var(--font-sans); font-weight: 300; }
 .faq-question[aria-expanded="true"]::after { transform: translateY(-50%) rotate(45deg); }
 .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s ease; }
-.faq-answer.open { max-height: 300px; padding-bottom: 1.2rem; }
+.faq-answer.open { max-height: 550px; padding-bottom: 1.2rem; }
 .faq-answer p { color: #c9b99a; font-size: 0.92rem; line-height: 1.8; }
 .faq-answer a { color: var(--gold-light); text-decoration: underline; }
 .faq-answer a:hover { color: var(--gold); }
+.faq-account { max-width: 380px; margin: 1.2rem 0 0.4rem; padding: 1.4rem 1.6rem 1.2rem; border: 1px solid rgba(184,150,90,0.45); border-radius: 8px; background: rgba(184,150,90,0.08); text-align: center; }
+.faq-account-ornament { display: block; color: var(--gold); font-size: 1.2rem; margin-bottom: 0.6rem; }
+.faq-account ul { list-style: none; padding: 0; margin: 0; text-align: left; }
+.faq-account li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(184,150,90,0.18); }
+.faq-account li:last-child { border-bottom: none; }
+.faq-account li span { color: #c9b99a; font-size: 0.88rem; }
+.faq-account li strong { color: var(--gold-light); font-family: var(--font-serif); letter-spacing: 0.05em; }
 
 /* =============================================
    RSVP SMART FORM
