@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>RSVP Admin — Oluwaseun &amp; Robertson</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --gold: #b8965a;
+      --gold-light: #d4af73;
+      --gold-dark: #8c6e38;
+      --ivory: #faf6f0;
+      --cream: #f4ede1;
+      --text: #3d3020;
+      --text-light: #7a6a52;
+      --white: #ffffff;
+      --line: #e6dcc8;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Montserrat', sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--ivory); color: var(--text); font-family: var(--sans); font-size: 14px; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+
+    header.page { text-align: center; margin-bottom: 2rem; }
+    header.page h1 { font-family: var(--serif); font-weight: 600; font-size: 2rem; color: var(--gold-dark); }
+    header.page p { color: var(--text-light); letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.7rem; margin-top: 0.3rem; }
+
+    /* ---- login gate ---- */
+    .gate { max-width: 360px; margin: 14vh auto 0; background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 2rem; text-align: center; }
+    .gate h1 { font-family: var(--serif); font-size: 1.6rem; color: var(--gold-dark); margin-bottom: 0.3rem; }
+    .gate p { color: var(--text-light); font-size: 0.8rem; margin-bottom: 1.2rem; }
+    .gate input { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--line); border-radius: 8px; font-family: var(--sans); font-size: 0.9rem; margin-bottom: 0.8rem; }
+    .gate input:focus { outline: 2px solid var(--gold-light); border-color: var(--gold); }
+    .gate .err { color: #a03030; font-size: 0.78rem; min-height: 1.1em; margin-bottom: 0.6rem; }
+    .btn { display: inline-block; padding: 0.65rem 1.4rem; background: var(--gold); color: var(--white); border: none; border-radius: 999px; font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.08em; cursor: pointer; }
+    .btn:hover { background: var(--gold-dark); }
+    .btn.ghost { background: transparent; color: var(--gold-dark); border: 1px solid var(--gold); }
+    .btn.ghost:hover { background: var(--gold); color: var(--white); }
+    .btn:disabled { opacity: 0.6; cursor: wait; }
+
+    /* ---- stat tiles ---- */
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; margin-bottom: 1.6rem; }
+    .tile { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.1rem; }
+    .tile .num { font-family: var(--serif); font-size: 2.1rem; font-weight: 600; color: var(--text); line-height: 1.1; }
+    .tile .lbl { color: var(--text-light); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.25rem; }
+
+    /* ---- toolbar ---- */
+    .toolbar { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 1rem; }
+    .toolbar input[type="search"] { flex: 1 1 220px; padding: 0.6rem 0.9rem; border: 1px solid var(--line); border-radius: 999px; font-family: var(--sans); font-size: 0.85rem; background: var(--white); }
+    .toolbar input[type="search"]:focus { outline: 2px solid var(--gold-light); }
+
+    /* ---- sections ---- */
+    section { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 1.2rem 1.3rem; margin-bottom: 1.4rem; }
+    section h2 { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; color: var(--gold-dark); margin-bottom: 0.9rem; }
+    section h2 .count { color: var(--text-light); font-family: var(--sans); font-size: 0.75rem; font-weight: 400; }
+
+    /* ---- occupancy diagram ---- */
+    .occ { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.7rem; }
+    .occ-table { border: 1px solid var(--line); border-radius: 10px; padding: 0.7rem 0.8rem; background: var(--ivory); }
+    .occ-table.reserved { opacity: 0.55; }
+    .occ-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.45rem; }
+    .occ-name { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; }
+    .occ-frac { font-size: 0.7rem; color: var(--text-light); }
+    .occ-seats { display: flex; gap: 5px; }
+    .occ-seat { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--gold); background: transparent; }
+    .occ-seat.full { background: var(--gold); }
+    .occ-guests { margin-top: 0.5rem; font-size: 0.7rem; color: var(--text-light); line-height: 1.5; }
+
+    /* ---- data table ---- */
+    .tbl-scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; min-width: 720px; }
+    th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); font-weight: 600; }
+    td { font-size: 0.82rem; }
+    td .sub { color: var(--text-light); font-size: 0.73rem; }
+    .pill { display: inline-block; padding: 0.15rem 0.6rem; border: 1px solid var(--gold); border-radius: 999px; color: var(--gold-dark); font-size: 0.7rem; white-space: nowrap; }
+    .muted { color: var(--text-light); }
+    .empty { color: var(--text-light); font-size: 0.85rem; padding: 0.6rem 0; }
+
+    .note { color: var(--text-light); font-size: 0.72rem; margin-top: 0.6rem; }
+    .hidden { display: none; }
+    @media (max-width: 560px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN GATE -->
+  <div class="gate" id="gate">
+    <h1>O &amp; R — RSVP Admin</h1>
+    <p>Enter the admin password to view responses.</p>
+    <form id="gateForm">
+      <input type="password" id="gatePw" placeholder="Admin password" autocomplete="current-password" autofocus />
+      <div class="err" id="gateErr"></div>
+      <button class="btn" type="submit" id="gateBtn">View RSVPs</button>
+    </form>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="wrap hidden" id="dash">
+    <header class="page">
+      <h1>Oluwaseun &amp; Robertson</h1>
+      <p>RSVP Dashboard</p>
+    </header>
+
+    <div class="tiles" id="tiles"></div>
+
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="Search name, email, dietary…" />
+      <button class="btn ghost" id="exportBtn">Export CSV</button>
+      <button class="btn ghost" id="refreshBtn">Refresh</button>
+      <button class="btn ghost" id="logoutBtn">Log out</button>
+    </div>
+
+    <section>
+      <h2>Table Occupancy</h2>
+      <div class="occ" id="occ"></div>
+      <p class="note">Tables 1–2 are reserved for family. Gold = occupied seat.</p>
+    </section>
+
+    <section>
+      <h2>Attending <span class="count" id="accCount"></span></h2>
+      <div class="tbl-scroll">
+        <table id="accTable">
+          <thead>
+            <tr><th>Guest</th><th>Party</th><th>Table</th><th>Contact</th><th>Dietary</th><th>Message</th><th>When</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="empty hidden" id="accEmpty">No acceptances yet.</p>
+    </section>
+
+    <section>
+      <h2>Waitlist <span class="count" id="waitCount"></span></h2>
+      <div class="tbl-scroll">
+        <table id="waitTable">
+          <thead>
+            <tr><th>Guest</th><th>Party</th><th>Contact</th><th>Dietary</th><th>When</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="empty hidden" id="waitEmpty">No one is waitlisted.</p>
+    </section>
+
+    <section>
+      <h2>Declined <span class="count" id="decCount"></span></h2>
+      <div class="tbl-scroll">
+        <table id="decTable">
+          <thead>
+            <tr><th>Guest</th><th>Contact</th><th>Note</th><th>When</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="empty hidden" id="decEmpty">No declines recorded.</p>
+    </section>
+
+    <section>
+      <h2>Dietary Requirements</h2>
+      <div class="tbl-scroll">
+        <table id="dietTable">
+          <thead><tr><th>Guest</th><th>Requirement</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="empty hidden" id="dietEmpty">No dietary requirements submitted.</p>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var API = '/api/admin';
+      var KEY = 'or_admin_pw';
+      var DATA = null;
+
+      var gate = document.getElementById('gate');
+      var dash = document.getElementById('dash');
+      var gateErr = document.getElementById('gateErr');
+      var gateBtn = document.getElementById('gateBtn');
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function fmtTs(ts) {
+        if (!ts) return '';
+        var d = new Date(ts);
+        return isNaN(d) ? '' : d.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      }
+
+      function load(pw, onFail) {
+        gateBtn.disabled = true;
+        fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw })
+        })
+          .then(function (r) {
+            if (r.status === 401) throw new Error('auth');
+            if (!r.ok) throw new Error('server');
+            return r.json();
+          })
+          .then(function (data) {
+            gateBtn.disabled = false;
+            sessionStorage.setItem(KEY, pw);
+            DATA = data;
+            gate.classList.add('hidden');
+            dash.classList.remove('hidden');
+            render();
+          })
+          .catch(function (e) {
+            gateBtn.disabled = false;
+            if (onFail) onFail(e);
+          });
+      }
+
+      // Auto-login if the password is already in this browser session
+      var saved = sessionStorage.getItem(KEY);
+      if (saved) load(saved, function () { sessionStorage.removeItem(KEY); });
+
+      document.getElementById('gateForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        gateErr.textContent = '';
+        load(document.getElementById('gatePw').value, function (err) {
+          gateErr.textContent = err.message === 'auth' ? 'Wrong password.' : 'Could not reach the server — try again.';
+        });
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', function () {
+        sessionStorage.removeItem(KEY);
+        location.reload();
+      });
+      document.getElementById('refreshBtn').addEventListener('click', function () {
+        var pw = sessionStorage.getItem(KEY);
+        if (pw) load(pw);
+      });
+      document.getElementById('search').addEventListener('input', render);
+
+      document.getElementById('exportBtn').addEventListener('click', function () {
+        if (!DATA) return;
+        var rows = [['Status', 'Name', 'Email', 'Phone', 'Guests', 'Guest names', 'Table', 'Seats', 'Dietary', 'Message', 'Submitted']];
+        DATA.entries.forEach(function (e) {
+          rows.push([
+            e.attending ? (e.waitlist ? 'Waitlist' : 'Attending') : 'Declined',
+            e.name, e.email, e.phone || '', e.attending ? (e.guests || 1) : '',
+            e.guestNames || '', e.table || '', (e.seats || []).join(' '),
+            e.dietary || '', e.message || '', e.ts || ''
+          ]);
+        });
+        var csv = rows.map(function (r) {
+          return r.map(function (c) { return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"'; }).join(',');
+        }).join('\r\n');
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+        a.download = 'wedding-rsvps.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+      });
+
+      function matches(e, q) {
+        if (!q) return true;
+        return [e.name, e.email, e.phone, e.guestNames, e.dietary, e.message]
+          .join(' ').toLowerCase().indexOf(q) !== -1;
+      }
+
+      function render() {
+        if (!DATA) return;
+        var q = document.getElementById('search').value.trim().toLowerCase();
+        var s = DATA.stats;
+        var av = DATA.availability;
+
+        document.getElementById('tiles').innerHTML =
+          tile(s.accepted, 'Parties attending') +
+          tile(s.totalGuests, 'Guests coming') +
+          tile(av.seatsLeft, 'Seats left') +
+          tile(s.declined, 'Declined') +
+          (s.waitlisted ? tile(s.waitlisted, 'Waitlisted') : '');
+
+        function tile(num, lbl) {
+          return '<div class="tile"><div class="num">' + esc(num) + '</div><div class="lbl">' + esc(lbl) + '</div></div>';
+        }
+
+        // Occupancy diagram
+        var acc = DATA.entries.filter(function (e) { return e.attending && !e.waitlist; });
+        var occ = '';
+        for (var t = 0; t < av.totalTables; t++) {
+          var reserved = t < av.reservedTables;
+          var used = av.tables[t];
+          var seats = '';
+          for (var i = 0; i < av.seatsPerTable; i++) {
+            seats += '<span class="occ-seat' + (i < used ? ' full' : '') + '"></span>';
+          }
+          var names = acc.filter(function (e) { return e.table === t + 1; })
+            .map(function (e) { return esc(e.name) + (e.guests > 1 ? ' +' + (e.guests - 1) : ''); })
+            .join('<br>');
+          occ += '<div class="occ-table' + (reserved ? ' reserved' : '') + '">' +
+            '<div class="occ-head"><span class="occ-name">' + (reserved ? 'Table ' + (t + 1) + ' · Reserved' : 'Table ' + (t + 1)) + '</span>' +
+            '<span class="occ-frac">' + used + '/' + av.seatsPerTable + '</span></div>' +
+            '<div class="occ-seats">' + seats + '</div>' +
+            (names ? '<div class="occ-guests">' + names + '</div>' : '') +
+            '</div>';
+        }
+        document.getElementById('occ').innerHTML = occ;
+
+        // Attending table
+        var accRows = acc.filter(function (e) { return matches(e, q); });
+        fillTable('acc', accRows, function (e) {
+          return '<tr>' +
+            '<td>' + esc(e.name) + (e.guestNames ? '<div class="sub">with ' + esc(e.guestNames) + '</div>' : '') + '</td>' +
+            '<td>' + esc(e.guests || 1) + '</td>' +
+            '<td><span class="pill">T' + esc(e.table) + ' · ' + (e.seats || []).map(function (n) { return 'S' + n; }).join(' ') + '</span></td>' +
+            '<td>' + esc(e.email) + (e.phone ? '<div class="sub">' + esc(e.phone) + '</div>' : '') + '</td>' +
+            '<td>' + (e.dietary ? esc(e.dietary) : '<span class="muted">—</span>') + '</td>' +
+            '<td>' + (e.message ? esc(e.message) : '<span class="muted">—</span>') + '</td>' +
+            '<td class="muted">' + fmtTs(e.ts) + '</td></tr>';
+        });
+        document.getElementById('accCount').textContent = '· ' + accRows.length + ' of ' + s.accepted;
+
+        // Waitlist
+        var waitRows = DATA.entries.filter(function (e) { return e.attending && e.waitlist && matches(e, q); });
+        fillTable('wait', waitRows, function (e) {
+          return '<tr><td>' + esc(e.name) + (e.guestNames ? '<div class="sub">with ' + esc(e.guestNames) + '</div>' : '') + '</td>' +
+            '<td>' + esc(e.guests || 1) + '</td>' +
+            '<td>' + esc(e.email) + (e.phone ? '<div class="sub">' + esc(e.phone) + '</div>' : '') + '</td>' +
+            '<td>' + (e.dietary ? esc(e.dietary) : '<span class="muted">—</span>') + '</td>' +
+            '<td class="muted">' + fmtTs(e.ts) + '</td></tr>';
+        });
+        document.getElementById('waitCount').textContent = waitRows.length ? '· ' + waitRows.length : '';
+
+        // Declined
+        var decRows = DATA.entries.filter(function (e) { return !e.attending && matches(e, q); });
+        fillTable('dec', decRows, function (e) {
+          return '<tr><td>' + esc(e.name) + '</td><td>' + esc(e.email) + '</td>' +
+            '<td>' + (e.message ? esc(e.message) : '<span class="muted">—</span>') + '</td>' +
+            '<td class="muted">' + fmtTs(e.ts) + '</td></tr>';
+        });
+        document.getElementById('decCount').textContent = '· ' + decRows.length + ' of ' + s.declined;
+
+        // Dietary summary
+        var dietRows = DATA.entries.filter(function (e) { return e.dietary && matches(e, q); });
+        fillTable('diet', dietRows, function (e) {
+          return '<tr><td>' + esc(e.name) + ' <span class="muted">(T' + esc(e.table || '—') + ')</span></td>' +
+            '<td>' + esc(e.dietary) + '</td></tr>';
+        });
+      }
+
+      function fillTable(prefix, rows, toHtml) {
+        var tbody = document.querySelector('#' + prefix + 'Table tbody');
+        var empty = document.getElementById(prefix + 'Empty');
+        tbody.innerHTML = rows.map(toHtml).join('');
+        empty.classList.toggle('hidden', rows.length > 0);
+        document.getElementById(prefix + 'Table').classList.toggle('hidden', rows.length === 0);
+      }
+    })();
+  </script>
+</body>
+</html>

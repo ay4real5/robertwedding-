@@ -370,6 +370,7 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
   var SEATS_PER_TABLE = 5;
   var RESERVED_TABLES = 2; // Tables 1 and 2 are reserved; guests start from Table 3
   var STORAGE_KEY = 'or_wedding_tables';
+  var RSVP_API = '/api/rsvp';
 
   // EmailJS credentials
   var EMAILJS_PUBLIC_KEY = 'xi_qSKReYZ-rU3djz';
@@ -483,7 +484,26 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
   var tables = loadTables();
   var selectedNumGuests = 1;
   var selectedTable = -1;
+  var apiLive = false; // true once the server has answered — server is the source of truth
   renderSeatMap(tables, -1, 0);
+
+  // Pull REAL occupancy (shared by all guests) from the server; localStorage
+  // remains only as an offline fallback.
+  function refreshAvailability() {
+    return fetch(RSVP_API)
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (data) {
+        if (data && data.tables && data.tables.length === TOTAL_TABLES) {
+          apiLive = true;
+          tables = data.tables;
+          saveTables(tables);
+          selectedTable = findTable(selectedNumGuests, tables);
+          renderSeatMap(tables, selectedTable, seatPreview.classList.contains('rsvp-hidden') ? 0 : selectedNumGuests);
+        }
+      })
+      .catch(function () { /* offline / API down: keep local fallback */ });
+  }
+  refreshAvailability();
 
   function updateProgress(step) {
     var fill = document.getElementById('rsvpProgressFill');
@@ -555,6 +575,8 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
   function showModal(name, email, tableIdx, seatNumbers, numGuests) {
     var tableNum = tableIdx + 1;
     var seatsLeft = SEATS_PER_TABLE - tables[tableIdx];
+    lastAssignment = { table: tableNum, seats: seatNumbers, guests: numGuests };
+    launchConfetti();
     modal.classList.add('show');
     document.body.style.overflow = 'hidden';
 
@@ -619,7 +641,25 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
     if (e.target === modal) closeModal();
   });
 
-  // Main RSVP form submit
+  function finishAccept(name, email, tableIdx, seatNumbers, numGuests, plusOneName, dietary, message) {
+    statusEl.innerHTML = '🎉 Thank you, ' + name + '! Your seat has been assigned.';
+    statusEl.style.color = 'var(--gold-dark)';
+    showModal(name, email, tableIdx, seatNumbers, numGuests);
+    updateProgress(3);
+    sendConfirmationEmail(name, email, tableIdx, seatNumbers, numGuests, plusOneName, dietary, message);
+    renderSeatMap(tables, tableIdx, 0);
+    form.reset();
+    plusOneGroup.classList.add('rsvp-hidden');
+  }
+
+  function fullMessage(name, email) {
+    statusEl.innerHTML = '🎉 Thank you, ' + name + '! We are so happy you will be joining us. <br>All guest tables are currently full — we will contact you at <strong>' + email + '</strong> to confirm your seating arrangement.';
+    statusEl.style.color = 'var(--gold-dark)';
+    form.reset();
+  }
+
+  // Main RSVP form submit — the server owns seat assignment; local logic is
+  // only an offline fallback so a guest is never left stranded.
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -627,55 +667,185 @@ document.querySelectorAll('.faq-question').forEach(function (btn) {
       var email = document.getElementById('email').value.trim();
       var numGuests = parseInt(document.getElementById('guests').value, 10) || 1;
       var plusOneName = document.getElementById('plusOneName') ? document.getElementById('plusOneName').value.trim() : '';
-
-      // Auto-assign to a table
-      var tableIdx = findTable(numGuests, tables);
-
-      if (tableIdx === -1) {
-        statusEl.innerHTML = '🎉 Thank you, ' + name + '! We are so happy you will be joining us. <br>All guest tables are currently full — we will contact you at <strong>' + email + '</strong> to confirm your seating arrangement.';
-        statusEl.style.color = 'var(--gold-dark)';
-        form.reset();
-        return;
-      }
-
-      // Gather remaining fields for email
       var dietary = document.getElementById('dietary').value.trim();
       var message = document.getElementById('message').value.trim();
 
-      // Assign seats
-      var seatNumbers = getSeatNumbers(tableIdx, numGuests, tables);
-      tables[tableIdx] += numGuests;
-      saveTables(tables);
+      submitBtn.disabled = true;
+      var origLabel = submitBtn.textContent;
+      submitBtn.textContent = 'Finding your seat…';
+      statusEl.textContent = '';
 
-      statusEl.innerHTML = '🎉 Thank you, ' + name + '! Your seat has been assigned.';
-      statusEl.style.color = 'var(--gold-dark)';
+      function restoreBtn() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = origLabel;
+      }
 
-      // Show beautiful modal
-      showModal(name, email, tableIdx, seatNumbers, numGuests);
+      function localFallback() {
+        var tableIdx = findTable(numGuests, tables);
+        if (tableIdx === -1) { fullMessage(name, email); return; }
+        var seatNumbers = getSeatNumbers(tableIdx, numGuests, tables);
+        tables[tableIdx] += numGuests;
+        saveTables(tables);
+        finishAccept(name, email, tableIdx, seatNumbers, numGuests, plusOneName, dietary, message);
+      }
 
-      // Mark confirmation step complete
-      updateProgress(3);
-
-      // Send confirmation email
-      sendConfirmationEmail(name, email, tableIdx, seatNumbers, numGuests, plusOneName, dietary, message);
-
-      // Update live seat map
-      renderSeatMap(tables, tableIdx, 0);
-
-      form.reset();
-      plusOneGroup.classList.add('rsvp-hidden');
+      fetch(RSVP_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          attending: true,
+          name: name,
+          email: email,
+          phone: document.getElementById('phone') ? document.getElementById('phone').value.trim() : '',
+          guests: numGuests,
+          guestNames: plusOneName,
+          dietary: dietary,
+          message: message,
+          website: document.getElementById('rsvpWebsite') ? document.getElementById('rsvpWebsite').value : ''
+        })
+      })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (data) {
+          restoreBtn();
+          if (data.waitlist) { fullMessage(name, email); return; }
+          if (data.availability && data.availability.tables) {
+            tables = data.availability.tables;
+            saveTables(tables);
+          }
+          finishAccept(name, email, data.table - 1, data.seats, numGuests, plusOneName, dietary, message);
+        })
+        .catch(function () {
+          restoreBtn();
+          localFallback();
+        });
     });
   }
 
-  // Decline form submit
+  // Decline form submit — now actually recorded so the couple knows.
   if (declineForm) {
     declineForm.addEventListener('submit', function (e) {
       e.preventDefault();
       var name = document.getElementById('declineName').value.trim();
       var email = document.getElementById('declineEmail').value.trim();
-      declineStatus.innerHTML = 'Thank you, ' + name + '. We appreciate you letting us know. A note has been sent to <strong>' + email + '</strong>.';
+      var note = document.getElementById('declineMessage') ? document.getElementById('declineMessage').value.trim() : '';
+
+      fetch(RSVP_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          attending: false,
+          name: name,
+          email: email,
+          message: note,
+          website: document.getElementById('declineWebsite') ? document.getElementById('declineWebsite').value : ''
+        })
+      }).catch(function () { /* best effort */ });
+
+      declineStatus.innerHTML = 'Thank you, ' + name + '. We appreciate you letting us know — your note has been passed to the couple. 🤍';
       declineStatus.style.color = 'var(--gold-dark)';
       declineForm.reset();
+      updateProgress(3);
+    });
+  }
+
+  // ---- Optional extras toggle (dietary / message) ----
+  var extrasToggle = document.getElementById('rsvpExtrasToggle');
+  var extras = document.getElementById('rsvpExtras');
+  if (extrasToggle && extras) {
+    extrasToggle.addEventListener('click', function () {
+      var open = extras.classList.toggle('rsvp-hidden');
+      extrasToggle.setAttribute('aria-expanded', String(!open));
+      extrasToggle.classList.toggle('open', !open);
+    });
+  }
+
+  // ---- Confetti (lightweight, gold-toned, no libraries) ----
+  function launchConfetti() {
+    var canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10000;';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(canvas);
+    var ctx = canvas.getContext('2d');
+    var colors = ['#c9a227', '#e8d48b', '#b08d1e', '#fff7dd', '#d4af37'];
+    var pieces = [];
+    for (var i = 0; i < 120; i++) {
+      pieces.push({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * canvas.height * 0.5,
+        w: 6 + Math.random() * 6,
+        h: 8 + Math.random() * 8,
+        vy: 2 + Math.random() * 3,
+        vx: -1.5 + Math.random() * 3,
+        rot: Math.random() * Math.PI,
+        vr: -0.1 + Math.random() * 0.2,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+    var start = Date.now();
+    (function frame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      pieces.forEach(function (p) {
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+      if (Date.now() - start < 3500) {
+        requestAnimationFrame(frame);
+      } else {
+        canvas.remove();
+      }
+    })();
+  }
+
+  // ---- Add to Calendar (.ics) + WhatsApp share ----
+  var lastAssignment = null; // set by showModal
+
+  function buildIcs() {
+    var ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//theORwedding//RSVP//EN',
+      'BEGIN:VEVENT',
+      'UID:' + Date.now() + '@theorwedding',
+      'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z',
+      'DTSTART:20260801T110000Z',
+      'DTEND:20260801T190000Z',
+      "SUMMARY:Oluwaseun & Robertson's Wedding 🥂",
+      "DESCRIPTION:Ceremony 12:00 PM at St Mary's Cathedral (arrive 11:30 AM)\\, reception 2:30 PM at Enish Restaurant Glasgow." +
+        (lastAssignment ? ' Your table: ' + lastAssignment.table + '.' : ''),
+      "LOCATION:St Mary's Cathedral\\, 300 Great Western Road\\, Glasgow G4 9JB",
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+    return new Blob([ics], { type: 'text/calendar' });
+  }
+
+  var calBtn = document.getElementById('rsvpAddCalendar');
+  if (calBtn) {
+    calBtn.addEventListener('click', function () {
+      var url = URL.createObjectURL(buildIcs());
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'oluwaseun-and-robertson-wedding.ics';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    });
+  }
+
+  var shareBtn = document.getElementById('rsvpShareWhatsApp');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function () {
+      var text = "I've RSVPed to Oluwaseun & Robertson's wedding — 1st August 2026, Glasgow! 🥂" +
+        (lastAssignment ? " I'm at Table " + lastAssignment.table + '.' : '') +
+        ' #theORwedding';
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
     });
   }
 })();

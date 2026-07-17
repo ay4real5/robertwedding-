@@ -530,14 +530,20 @@
               <input type="text" id="plusOneName" name="plusOneName" placeholder="Enter your guest's full name" />
             </div>
 
-            <div class="form-group full-width">
-              <label for="dietary">Dietary Requirements / Allergies</label>
-              <textarea id="dietary" name="dietary" rows="3" placeholder="Please let us know of any dietary requirements or allergies..."></textarea>
+            <button type="button" class="rsvp-extras-toggle" id="rsvpExtrasToggle" aria-expanded="false">
+              + Add dietary needs or a message <span class="rsvp-extras-hint">(optional)</span>
+            </button>
+            <div class="rsvp-extras rsvp-hidden" id="rsvpExtras">
+              <div class="form-group full-width">
+                <label for="dietary">Dietary Requirements / Allergies</label>
+                <textarea id="dietary" name="dietary" rows="3" placeholder="Please let us know of any dietary requirements or allergies..."></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label for="message">Message to the Couple (optional)</label>
+                <textarea id="message" name="message" rows="4" placeholder="Share your well wishes with Oluwaseun & Robertson..."></textarea>
+              </div>
             </div>
-            <div class="form-group full-width">
-              <label for="message">Message to the Couple (optional)</label>
-              <textarea id="message" name="message" rows="4" placeholder="Share your well wishes with Oluwaseun & Robertson..."></textarea>
-            </div>
+            <input type="text" name="website" id="rsvpWebsite" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
             <div class="form-submit">
               <button type="submit" class="btn-gold" id="rsvpSubmitBtn">Find My Seat & Send RSVP</button>
             </div>
@@ -563,6 +569,11 @@
                   <input type="email" id="declineEmail" name="declineEmail" placeholder="your@email.com" required />
                 </div>
               </div>
+              <div class="form-group full-width">
+                <label for="declineMessage">A Note for the Couple (optional)</label>
+                <textarea id="declineMessage" name="declineMessage" rows="3" placeholder="Send your love and well wishes..."></textarea>
+              </div>
+              <input type="text" name="website" id="declineWebsite" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
               <div class="form-submit">
                 <button type="submit" class="btn-outline">Send Regrets</button>
               </div>
@@ -602,6 +613,10 @@
       <div class="rsvp-modal-details" id="rsvpModalDetails"></div>
       <div class="rsvp-modal-seats" id="rsvpModalSeats"></div>
       <p class="rsvp-modal-email" id="rsvpModalEmail"></p>
+      <div class="rsvp-modal-actions">
+        <button type="button" class="rsvp-modal-action" id="rsvpAddCalendar">📅 Add to Calendar</button>
+        <button type="button" class="rsvp-modal-action" id="rsvpShareWhatsApp">💬 Share on WhatsApp</button>
+      </div>
       <button class="rsvp-modal-btn" id="rsvpModalDone">Done</button>
     </div>
   </div>

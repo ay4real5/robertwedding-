@@ -1,0 +1,14 @@
+{
+  "name": "robertwedding",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Oluwaseun & Robertson wedding site — static pages + RSVP API",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ay4real5/robertwedding-.git"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.6.1"
+  }
+}
