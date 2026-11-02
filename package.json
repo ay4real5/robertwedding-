@@ -1,14 +1,14 @@
 {
-  "name": "robertwedding",
-  "version": "1.0.0",
+  "name": "wedding-guest-list",
+  "version": "2.0.0",
   "private": true,
-  "description": "Oluwaseun & Robertson wedding site — static pages + RSVP API",
-  "type": "commonjs",
+  "description": "Wedding guest list creator: static site, runs entirely in the browser",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ay4real5/robertwedding-.git"
-  },
-  "dependencies": {
-    "@vercel/blob": "^2.6.1"
   }
 }
