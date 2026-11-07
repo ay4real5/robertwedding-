@@ -1,7 +1,7 @@
 // Keeps the app working with no signal (venues rarely have any).
 // Always tries the network first so a new version shows up straight away.
 
-const CACHE = 'guestlist-v2';
+const CACHE = 'guestlist-v3';
 const NETWORK_WAIT = 2500;
 const CORE = [
   '/',
