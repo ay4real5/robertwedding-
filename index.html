@@ -23,6 +23,7 @@
   </div>
 
   <header class="hero" id="hero">
+    <p class="save" id="save" role="status" hidden><span class="save-dot" aria-hidden="true"></span><span id="saveText"></span></p>
     <input class="hero-names" id="names" type="text" maxlength="80" placeholder="Your names" aria-label="The couple's names" autocomplete="off">
     <label class="hero-date" id="dateWrap">
       <span id="dateText">Add your date</span>
@@ -60,14 +61,18 @@
         <button type="button" class="try">The Bello family of 5, table 3</button>
         <button type="button" class="try">Ṣadé Adéyẹmí (vegan)</button>
       </div>
+      <button type="button" class="empty-upload" id="uploadEmpty">Have a PDF from here? Upload it to keep editing</button>
     </div>
   </main>
 
   <footer class="foot" id="foot">
     <button class="foot-link" id="share" type="button">Share this list</button>
+    <button class="foot-link" id="upload" type="button">Upload a PDF</button>
     <button class="foot-link" id="reset" type="button">Start a new list</button>
-    <p class="foot-note">Your list is saved on this device only.</p>
+    <p class="foot-note" id="footNote">Saved on this device. It goes online as soon as it can.</p>
   </footer>
+
+  <input type="file" id="fileInput" accept="application/pdf,.pdf,text/plain,.txt,text/csv,.csv" hidden>
 
   <div class="toast" id="toast" role="status" hidden>
     <span id="toastText"></span>

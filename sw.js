@@ -1,7 +1,7 @@
 // Keeps the app working with no signal (venues rarely have any).
 // Always tries the network first so a new version shows up straight away.
 
-const CACHE = 'guestlist-v1';
+const CACHE = 'guestlist-v2';
 const NETWORK_WAIT = 2500;
 const CORE = [
   '/',
@@ -12,6 +12,8 @@ const CORE = [
   '/js/share.js',
   '/js/wreath.js',
   '/js/pdf.js',
+  '/js/sync.js',
+  '/js/pdfread.js',
   '/vendor/jspdf.umd.min.js',
   '/fonts/cormorant.woff2',
   '/fonts/cormorant-italic.woff2',
@@ -40,7 +42,9 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const { request } = e;
-  if (request.method !== 'GET' || new URL(request.url).origin !== location.origin) return;
+  const url = new URL(request.url);
+  // The online list must always be live, never a stored copy.
+  if (request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/')) return;
 
   const fallback = () => caches.match(request, { ignoreSearch: true }).then((hit) => hit || (request.mode === 'navigate' ? caches.match('/') : undefined));
 

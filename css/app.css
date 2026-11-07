@@ -42,6 +42,13 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
     radial-gradient(ellipse 480px 400px at 50% 240px, var(--glow) 0%, rgba(36, 80, 59, 0) 72%),
     linear-gradient(var(--forest), var(--forest-2));
 }
+.save { display: flex; align-items: center; gap: 7px; width: max-content; max-width: 100%; margin: -10px auto 10px; padding: 3px 12px; border-radius: 99px; background: rgba(248, 243, 233, .08); font-size: .76rem; letter-spacing: .05em; color: rgba(248, 243, 233, .86); }
+.save-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); transition: background .3s; }
+.save[data-state="saving"] .save-dot { animation: save-pulse 1s ease-in-out infinite; }
+.save[data-state="offline"] .save-dot, .save[data-state="local"] .save-dot { background: #b9bdb3; }
+.save[data-state="error"] .save-dot { background: var(--rose-light); }
+@keyframes save-pulse { 50% { opacity: .25; } }
+
 .hero-names {
   display: block;
   width: 100%;
@@ -216,6 +223,10 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .empty-tries { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .try { padding: 6px 14px; border: 1px solid var(--line); border-radius: 99px; background: var(--card); font-family: var(--serif); font-weight: 500; font-size: 1.08rem; transition: border-color .2s, transform .15s; }
 .try:hover { border-color: var(--gold-2); transform: translateY(-1px); }
+
+.empty-upload { margin-top: 18px; padding: 6px 10px; font-size: .92rem; color: var(--ink); text-decoration: underline; text-decoration-color: var(--gold-2); text-underline-offset: 4px; }
+.empty-upload:hover { color: var(--gold-deep); }
+body.is-dropping .sheet { outline: 2px dashed var(--gold-2); outline-offset: -4px; border-radius: 18px; background: rgba(228, 199, 119, .08); }
 
 .foot { max-width: 720px; margin: 0 auto; padding: 16px 16px calc(96px + env(safe-area-inset-bottom)); text-align: center; }
 .foot-link { padding: 8px 12px; font-size: .92rem; color: var(--ink); text-decoration: underline; text-decoration-color: var(--gold-2); text-underline-offset: 4px; }

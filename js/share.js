@@ -1,5 +1,7 @@
 // A share link carries the whole list inside the part of the URL after the #,
-// which browsers never send to any server.
+// which browsers never send to any server. PDFs carry the same code, so they can be read back.
+
+export const PDF_DATA_PREFIX = 'guestlist:';
 
 const encodeB64 = (bytes) => {
   let bin = '';
@@ -19,6 +21,7 @@ const pack = (state) => ({
   n: state.names,
   d: state.date,
   c: state.capacity,
+  m: state.metaAt,
   g: state.guests.map((g) => [g.id, g.name, g.party, g.table, g.contact, g.group, g.note, g.status[0], g.okDup ? 1 : 0, g.updatedAt]),
   r: state.removed,
 });
@@ -29,6 +32,7 @@ const unpack = (p) => ({
   names: p.n,
   date: p.d,
   capacity: p.c,
+  metaAt: p.m,
   guests: (Array.isArray(p.g) ? p.g : []).map((a) => ({
     id: a[0],
     name: a[1],

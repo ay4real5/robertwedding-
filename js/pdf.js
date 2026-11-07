@@ -1,6 +1,7 @@
 // Builds the printable guest list. Loaded on the first download so the page stays light.
 
 import { sortKey } from './parse.js';
+import { PDF_DATA_PREFIX, encodeList } from './share.js';
 import { groupOrder, totals } from './store.js';
 import { LEAF_CURVES, SIZE, leafAt, slotsFor, stemPoints } from './wreath.js';
 
@@ -144,7 +145,9 @@ export async function buildPdf(state) {
   const M = 18;
   const BOTTOM = H - 18;
   const title = state.names || 'Our wedding';
-  doc.setProperties({ title: `${title}: guest list`, subject: 'Wedding guest list', creator: 'Guest List' });
+  // An exact copy of the list rides along in the file's keywords, so uploading it brings everything back.
+  const data = PDF_DATA_PREFIX + (await encodeList({ ...state, removed: {} }));
+  doc.setProperties({ title: `${title}: guest list`, subject: 'Wedding guest list', creator: 'Guest List', keywords: data });
 
   const col = { box: M, no: M + 8, name: M + 17, guests: W - M - 50, table: W - M - 33, status: W - M };
   const nameWidth = col.guests - col.name - 8;

@@ -1,11 +1,17 @@
 {
   "name": "wedding-guest-list",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
-  "description": "Wedding guest list creator: static site, runs entirely in the browser",
+  "description": "Wedding guest list creator: static site, with lists saved online through one small API",
   "type": "module",
   "scripts": {
     "test": "node --test"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.2"
+  },
+  "overrides": {
+    "zod": "^4.6.7"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,7 @@
 import { findSimilar, isSimilarKey, looseKey, matchesQuery, parseInput, strictKey } from './parse.js';
-import { STORAGE_KEY, createStore, groupOrder, merge, totals } from './store.js';
-import { decodeList, encodeList } from './share.js';
+import { STORAGE_KEY, blank, createStore, groupOrder, merge, totals } from './store.js';
+import { decodeList } from './share.js';
+import { createSync } from './sync.js';
 import { createOdometer, createWreath } from './wreath.js';
 import { downloadPdf, longDate } from './pdf.js';
 
@@ -52,27 +53,60 @@ const wreath = createWreath($('wreath'));
 const bigCount = createOdometer($('bigCount'));
 const miniCount = createOdometer($('miniCount'));
 
+let sync = null; // set up once the page is drawn
+
 const store = createStore((reason) => {
   if (reason === 'save-failed') {
     toast('Your browser refused to save. Download a PDF so nothing is lost.');
     return;
   }
   if (reason !== 'edit') ui.twinsDirty = true;
+  if (reason === 'switch') ui.lastCount = null; // a different list, not a change to count up from
   drawCounts();
   if (reason !== 'edit') drawList();
-  if (reason === 'history' || reason === 'replace' || reason === 'meta') drawHeader();
+  if (['history', 'replace', 'meta', 'remote', 'switch'].includes(reason)) drawHeader();
+  // Changes that came from the online copy don't need sending back to it.
+  if (reason !== 'remote' && reason !== 'switch') sync?.changed(reason);
 });
 
 /* ---------- toast ---------- */
 
 let toastTimer;
-function toast(text, { undo = false, ms = 6000 } = {}) {
+let toastAction = null;
+function toast(text, { undo = false, action = null, ms = 6000 } = {}) {
   clearTimeout(toastTimer);
   const box = $('toast');
   $('toastText').textContent = text;
-  $('toastUndo').hidden = !undo;
+  toastAction = action || (undo ? { label: 'Undo', run: () => store.undo() } : null);
+  $('toastUndo').hidden = !toastAction;
+  if (toastAction) $('toastUndo').textContent = toastAction.label;
   box.hidden = false;
   toastTimer = setTimeout(() => (box.hidden = true), ms);
+}
+
+/* ---------- saving ---------- */
+
+const SAVE_TEXT = {
+  saving: 'Saving…',
+  saved: 'Saved',
+  offline: 'Offline · saved on this device',
+  local: 'Saved on this device',
+  error: 'Not saved online yet · retrying',
+};
+
+function drawSave(status) {
+  const box = $('save');
+  box.hidden = !SAVE_TEXT[status];
+  box.dataset.state = status;
+  $('saveText').textContent = SAVE_TEXT[status] || '';
+  $('footNote').textContent = ['saved', 'saving'].includes(status)
+    ? 'Saved online. Anyone with this list’s link can see and edit it.'
+    : 'Saved on this device. It goes online as soon as it can.';
+}
+
+// The address bar always holds this list's link, so a bookmark or home-screen icon reopens it.
+function showToken(token) {
+  if (token && location.hash !== `#g=${token}`) history.replaceState(null, '', `${location.pathname}${location.search}#g=${token}`);
 }
 
 /* ---------- the numbers ---------- */
@@ -95,7 +129,8 @@ function drawCounts() {
       delta.addEventListener('animationend', () => delta.remove());
       $('countNumber').appendChild(delta);
     }
-    navigator.vibrate?.(diff > 0 ? 8 : [6, 40, 6]);
+    // A tap gets a buzz; a partner's change arriving from another phone doesn't.
+    if (navigator.userActivation?.isActive) navigator.vibrate?.(diff > 0 ? 8 : [6, 40, 6]);
     $('live').textContent = `${plural(t.guests, 'guest')} on the list`;
   }
   ui.lastCount = t.guests;
@@ -468,7 +503,9 @@ function nudge() {
   box.classList.add('nudge');
 }
 
-function addFound(found, { okDup = false } = {}) {
+// withinBatch: also skip repeats inside what's being added (a PDF's repeats were kept on purpose).
+// meta: names, date and seats from a PDF, used only where this list has none yet.
+function addFound(found, { okDup = false, withinBatch = true, meta = null, from = '', unreadable = 0 } = {}) {
   const taken = new Set(store.state.guests.map((g) => strictKey(g.name)));
   const fresh = [];
   let skipped = 0;
@@ -478,30 +515,42 @@ function addFound(found, { okDup = false } = {}) {
       skipped += 1;
       continue;
     }
-    taken.add(key);
-    const guest = store.newGuest({ ...f, okDup });
+    if (withinBatch) taken.add(key);
+    const guest = store.newGuest({ ...f, okDup: okDup || f.okDup === true });
     fresh.push(guest);
     ui.fresh.add(guest.id);
   }
 
-  if (!fresh.length) {
+  const s = store.state;
+  const fillMeta = Boolean(meta && ((meta.names && !s.names) || (meta.date && !s.date) || (meta.capacity && !s.capacity)));
+  if (!fresh.length && !fillMeta) {
     toast(skipped === 1 ? 'Already on your list.' : `All ${skipped} are already on your list.`);
     return 0;
   }
 
   // The list shows newest first, so a pasted list goes in backwards to read in its own order.
-  store.change((s) => s.guests.push(...[...fresh].reverse()), { reason: 'add' });
+  store.change((state) => {
+    state.guests.push(...[...fresh].reverse());
+    if (fillMeta) {
+      state.names = state.names || meta.names || '';
+      state.date = state.date || meta.date || '';
+      state.capacity = state.capacity ?? meta.capacity ?? null;
+      state.metaAt = Date.now();
+    }
+  }, { reason: fillMeta ? 'meta' : 'add' });
   navigator.storage?.persist?.();
 
   const top = $('list').getBoundingClientRect().top;
   if (top < 0) window.scrollBy({ top: top - 160, behavior: reduceMotion() ? 'auto' : 'smooth' });
 
-  if (fresh.length > 1 || skipped) {
+  if (from || fresh.length > 1 || skipped) {
     const twins = fresh.filter((g) => ui.twins.has(g.id)).length;
     const extras = [];
     if (skipped) extras.push(`${skipped} already on your list`);
     if (twins) extras.push(`${twins} to double-check`);
-    toast(`Added ${plural(peopleIn(fresh), 'guest')}${extras.length ? ` · ${extras.join(' · ')}` : ''}`, { undo: true, ms: 8000 });
+    if (unreadable) extras.push(`${unreadable} name${unreadable === 1 ? '' : 's'} to retype`);
+    const added = `Added ${plural(peopleIn(fresh), 'guest')}${from ? ` from ${from}` : ''}`;
+    toast(`${added}${extras.length ? ` · ${extras.join(' · ')}` : ''}`, { undo: true, ms: 9000 });
   }
   return fresh.length;
 }
@@ -764,6 +813,7 @@ $('names').addEventListener('input', (e) => {
     ui.editSnapshot = null;
   }
   store.state.names = e.target.value.trim();
+  store.state.metaAt = Date.now();
   store.touched('edit');
 });
 $('names').addEventListener('keydown', (e) => e.key === 'Enter' && e.target.blur());
@@ -772,7 +822,10 @@ $('names').addEventListener('keydown', (e) => e.key === 'Enter' && e.target.blur
 const onDate = (e) => {
   const value = e.target.value;
   if (value === store.state.date || (value && !/^\d{4}-\d{2}-\d{2}$/.test(value))) return;
-  store.change((s) => (s.date = value), { reason: 'meta' });
+  store.change((s) => {
+    s.date = value;
+    s.metaAt = Date.now();
+  }, { reason: 'meta' });
 };
 $('date').addEventListener('input', onDate);
 $('date').addEventListener('change', onDate);
@@ -799,7 +852,12 @@ function closeLimit() {
   const next = n >= 1 ? Math.min(n, 100000) : null;
   limitInput.hidden = true;
   limitBtn.hidden = false;
-  if (next !== store.state.capacity) store.change((s) => (s.capacity = next), { reason: 'meta' });
+  if (next !== store.state.capacity) {
+    store.change((s) => {
+      s.capacity = next;
+      s.metaAt = Date.now();
+    }, { reason: 'meta' });
+  }
 }
 limitInput.addEventListener('blur', closeLimit);
 limitInput.addEventListener('keydown', (e) => {
@@ -846,13 +904,16 @@ async function onDownload(e) {
 }
 document.querySelectorAll('.js-download').forEach((b) => b.addEventListener('click', onDownload));
 
+// The link opens this same list on another phone; edits made there show up here, and back.
 $('share').addEventListener('click', async () => {
-  const code = await encodeList(store.state);
-  const url = `${location.origin}${location.pathname}#list=${code}`;
+  const token = sync.ensureToken();
+  showToken(token);
+  sync.push();
+  const url = `${location.origin}/#g=${token}`;
   const title = store.state.names ? `${store.state.names}: guest list` : 'Our guest list';
   if (navigator.share && matchMedia('(pointer: coarse)').matches) {
     try {
-      await navigator.share({ title, text: 'Our wedding guest list. Open it to add it to yours.', url });
+      await navigator.share({ title, text: 'Our wedding guest list. Open it to see and edit it with me.', url });
       return;
     } catch (err) {
       if (err.name === 'AbortError') return;
@@ -860,10 +921,57 @@ $('share').addEventListener('click', async () => {
   }
   try {
     await navigator.clipboard.writeText(url);
-    toast('Link copied. Anyone who opens it gets every name on this list, so send it only to people you trust.', { ms: 9000 });
+    toast('Link copied. Anyone with it can see and edit this list, so only send it to people you trust.', { ms: 9000 });
   } catch {
     window.prompt('Copy this link:', url);
   }
+});
+
+/* ---------- reading a PDF back in ---------- */
+
+async function importFile(file) {
+  if (!file) return;
+  if (file.size > 25e6) {
+    toast('That file is too big to be a guest list.');
+    return;
+  }
+  toast('Reading your file…', { ms: 30000 });
+  try {
+    const { readListFile } = await import('./pdfread.js');
+    const result = await readListFile(file);
+    if (!result.guests.length) {
+      toast('No guests found in that file.');
+      return;
+    }
+    const from = result.source === 'text' && !/\.pdf$/i.test(file.name) ? 'the file' : 'the PDF';
+    addFound(result.guests, { withinBatch: false, meta: result.meta, from, unreadable: result.unreadable });
+  } catch (err) {
+    if (err?.message !== 'unsupported') console.error(err);
+    toast('That file couldn’t be read. Try a PDF downloaded from this page.');
+  }
+}
+
+const fileInput = $('fileInput');
+for (const id of ['upload', 'uploadEmpty']) $(id).addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+  importFile(fileInput.files[0]);
+  fileInput.value = '';
+});
+
+const carriesFiles = (e) => [...(e.dataTransfer?.types || [])].includes('Files');
+document.addEventListener('dragover', (e) => {
+  if (!carriesFiles(e)) return;
+  e.preventDefault();
+  document.body.classList.add('is-dropping');
+});
+document.addEventListener('dragleave', (e) => {
+  if (!e.relatedTarget) document.body.classList.remove('is-dropping');
+});
+document.addEventListener('drop', (e) => {
+  if (!carriesFiles(e)) return;
+  e.preventDefault();
+  document.body.classList.remove('is-dropping');
+  importFile(e.dataTransfer.files[0]);
 });
 
 let resetArmed = null;
@@ -885,20 +993,62 @@ $('reset').addEventListener('click', (e) => {
   button.classList.remove('is-armed');
   ui.filter = '';
   ui.open = null;
-  store.replace({ names: '', date: '', capacity: null, guests: [], removed: {} });
+  // Cleared guests are marked as removed, so other phones on this list clear too.
+  store.change((s) => {
+    const now = Date.now();
+    for (const g of s.guests) s.removed[g.id] = now;
+    Object.assign(s, { guests: [], names: '', date: '', capacity: null, metaAt: now });
+  }, { reason: 'replace' });
   toast('List cleared.', { undo: true, ms: 10000 });
   scrollTo({ top: 0, behavior: reduceMotion() ? 'auto' : 'smooth' });
 });
 
 $('toastUndo').addEventListener('click', () => {
-  store.undo();
+  const action = toastAction;
+  toastAction = null;
   $('toast').hidden = true;
+  action?.run();
 });
 
-async function openSharedLink() {
+// Opening someone's list link. Whatever was on this phone before is kept aside, one tap from joining it.
+async function joinList(token) {
+  const before = store.state.guests.length ? JSON.parse(store.snapshot()) : null;
+  if (before) {
+    try {
+      localStorage.setItem('guestlist.previous', JSON.stringify(before));
+    } catch {
+      /* the toast below still offers to bring them across */
+    }
+    if (sync.token) await sync.push();
+  }
+  sync.open(token);
+  ui.filter = '';
+  ui.open = null;
+  store.switchTo(blank());
+  await sync.pull();
+  if (before) {
+    const guests = before.guests.map(({ id, updatedAt, ...rest }) => rest);
+    toast(`Opened the shared list. This phone had ${plural(peopleIn(before.guests), 'other guest')}.`, {
+      action: { label: 'Add them', run: () => addFound(guests, { withinBatch: false, from: 'this phone' }) },
+      ms: 20000,
+    });
+  } else toast('Opened the shared list.');
+}
+
+async function openLink() {
+  const joined = location.hash.match(/^#g=([A-Za-z0-9_-]{24,64})$/);
+  if (joined) {
+    if (joined[1] !== sync.token) await joinList(joined[1]);
+    return;
+  }
   const match = location.hash.match(/^#list=(.+)$/);
-  if (!match) return;
+  if (!match) {
+    showToken(sync.token);
+    return;
+  }
+  // An older kind of link that carried a copy of the list itself.
   history.replaceState(null, '', location.pathname + location.search);
+  showToken(sync.token);
   const incoming = await decodeList(match[1]);
   if (!incoming) {
     toast('That link is damaged. Ask for it to be sent again.');
@@ -948,15 +1098,17 @@ addEventListener('storage', (e) => {
 });
 addEventListener('pagehide', () => store.flush());
 document.addEventListener('visibilitychange', () => document.hidden && store.flush());
-addEventListener('hashchange', openSharedLink);
+addEventListener('hashchange', openLink);
 
 if ('serviceWorker' in navigator && isSecureContext) {
   addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 }
 
+sync = createSync(store, { onStatus: drawSave, onToken: showToken });
 drawHeader();
 ui.twinsDirty = true;
 drawCounts();
 drawList();
 drawAction();
-openSharedLink();
+drawSave('');
+openLink().finally(() => sync.start());

@@ -8,10 +8,11 @@ const HISTORY = 100;
 
 const text = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
 const STATUSES = new Set(['waiting', 'coming', 'declined']);
+const META = ['names', 'date', 'capacity'];
 
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
-export const blank = () => ({ names: '', date: '', capacity: null, guests: [], removed: {} });
+export const blank = () => ({ names: '', date: '', capacity: null, metaAt: 0, guests: [], removed: {} });
 
 function cleanGuest(g, now) {
   if (!g || typeof g !== 'object') return null;
@@ -32,8 +33,8 @@ function cleanGuest(g, now) {
   };
 }
 
-// Everything loaded from storage or a shared link passes through here, so a
-// tampered link can only ever produce a list of plain-text guests.
+// Everything loaded from storage, a shared link, the server or a PDF passes through here,
+// so tampered data can only ever produce a list of plain-text guests.
 export function clean(raw, now = Date.now()) {
   const out = blank();
   if (!raw || typeof raw !== 'object') return out;
@@ -41,6 +42,7 @@ export function clean(raw, now = Date.now()) {
   out.date = /^\d{4}-\d{2}-\d{2}$/.test(raw.date) ? raw.date : '';
   const cap = Math.round(Number(raw.capacity));
   out.capacity = cap >= 1 ? Math.min(cap, 100000) : null;
+  out.metaAt = Number.isFinite(raw.metaAt) && raw.metaAt > 0 ? raw.metaAt : 0;
   const seen = new Set();
   for (const g of Array.isArray(raw.guests) ? raw.guests.slice(0, MAX_GUESTS) : []) {
     const guest = cleanGuest(g, now);
@@ -50,7 +52,7 @@ export function clean(raw, now = Date.now()) {
     }
   }
   if (raw.removed && typeof raw.removed === 'object') {
-    for (const [id, at] of Object.entries(raw.removed).slice(0, MAX_GUESTS)) {
+    for (const [id, at] of Object.entries(raw.removed).slice(0, MAX_GUESTS * 4)) {
       if (Number.isFinite(at)) out.removed[id.slice(0, 40)] = at;
     }
   }
@@ -81,14 +83,29 @@ export function groupOrder(guests) {
   return [...firstSeen.keys()].sort((a, b) => firstSeen.get(b) - firstSeen.get(a));
 }
 
-// Folds a list from someone else's phone into ours. Newest edit of each guest
-// wins, deletions travel too, and the same person added on both sides stays single.
-export function merge(local, incoming) {
+const guestBody = (g) => JSON.stringify([g.name, g.party, g.table, g.contact, g.group, g.note, g.status, g.okDup]);
+const metaBody = (s) => JSON.stringify(META.map((k) => s[k]));
+
+// Two edits stamped in the same millisecond still need the same winner on every phone.
+const isNewer = (a, b) => a.updatedAt > b.updatedAt || (a.updatedAt === b.updatedAt && guestBody(a) > guestBody(b));
+
+// The same content in any order: what "these two copies agree" means.
+export function fingerprint(state) {
+  const byId = (a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  const guests = [...state.guests].sort(byId).map((g) => [g.id, guestBody(g), g.updatedAt]);
+  const removed = Object.keys(state.removed).sort().map((id) => [id, state.removed[id]]);
+  return JSON.stringify([metaBody(state), state.metaAt, guests, removed]);
+}
+
+// Folds another copy of a list into ours. Newest edit of each guest wins and deletions
+// travel too. With dedupe (a different list being joined to ours) the same person typed
+// on both sides stays single; between copies of one list, ids alone decide.
+export function merge(local, incoming, { dedupe = true } = {}) {
   const out = clean(local);
   const from = clean(incoming);
   const report = { added: 0, updated: 0, removed: 0 };
   const byId = new Map(out.guests.map((g) => [g.id, g]));
-  const byKey = new Map(out.guests.map((g) => [strictKey(g.name), g]));
+  const byKey = dedupe ? new Map(out.guests.map((g) => [strictKey(g.name), g])) : null;
 
   for (const [id, at] of Object.entries(from.removed)) {
     out.removed[id] = Math.max(out.removed[id] || 0, at);
@@ -96,7 +113,7 @@ export function merge(local, incoming) {
     if (mine && mine.updatedAt <= at) {
       out.guests = out.guests.filter((g) => g !== mine);
       byId.delete(id);
-      byKey.delete(strictKey(mine.name));
+      byKey?.delete(strictKey(mine.name));
       report.removed += 1;
     }
   }
@@ -105,27 +122,59 @@ export function merge(local, incoming) {
     if ((out.removed[g.id] || 0) >= g.updatedAt) continue;
     const mine = byId.get(g.id);
     if (mine) {
-      if (g.updatedAt > mine.updatedAt) {
+      if (isNewer(g, mine)) {
         Object.assign(mine, g);
         report.updated += 1;
       }
-    } else if (!byKey.has(strictKey(g.name))) {
+    } else if (!byKey?.has(strictKey(g.name))) {
       out.guests.push(g);
       byId.set(g.id, g);
-      byKey.set(strictKey(g.name), g);
+      byKey?.set(strictKey(g.name), g);
       report.added += 1;
     }
   }
 
-  out.names = out.names || from.names;
-  out.date = out.date || from.date;
-  out.capacity = out.capacity ?? from.capacity;
+  const theirsWins = from.metaAt > out.metaAt || (from.metaAt === out.metaAt && from.metaAt > 0 && metaBody(from) > metaBody(out));
+  if (theirsWins) {
+    for (const k of META) out[k] = from[k];
+    out.metaAt = from.metaAt;
+  } else if (!out.metaAt && !from.metaAt) {
+    // Older copies carry no timestamp, so they can only fill gaps.
+    out.names = out.names || from.names;
+    out.date = out.date || from.date;
+    out.capacity = out.capacity ?? from.capacity;
+  }
   return { state: out, report };
+}
+
+// Undo only what one step changed, so edits that arrived from another phone since are kept.
+function applyStep(current, from, to, now) {
+  const before = new Map(from.guests.map((g) => [g.id, g]));
+  const after = new Map(to.guests.map((g) => [g.id, g]));
+  for (const id of new Set([...before.keys(), ...after.keys()])) {
+    const was = before.get(id);
+    const want = after.get(id);
+    if (was && want && guestBody(was) === guestBody(want)) continue;
+    const at = current.guests.findIndex((g) => g.id === id);
+    if (want) {
+      const guest = { ...want, updatedAt: now };
+      delete current.removed[id];
+      if (at >= 0) current.guests[at] = guest;
+      else current.guests.splice(Math.min(to.guests.indexOf(want), current.guests.length), 0, guest);
+    } else {
+      if (at >= 0) current.guests.splice(at, 1);
+      current.removed[id] = now;
+    }
+  }
+  if (metaBody(from) !== metaBody(to)) {
+    for (const k of META) current[k] = to[k];
+    current.metaAt = now;
+  }
 }
 
 export function createStore(onChange, storage = globalThis.localStorage) {
   let state = blank();
-  let past = [];
+  let past = []; // { before, after } snapshots; after stays null while a field is still being typed in
   let future = [];
   let saveTimer = null;
   let saveFailed = false;
@@ -154,8 +203,12 @@ export function createStore(onChange, storage = globalThis.localStorage) {
   };
 
   const snapshot = () => JSON.stringify(state);
-  const remember = (snap = snapshot()) => {
-    past.push(snap);
+  const closeOpenStep = () => {
+    const top = past[past.length - 1];
+    if (top && top.after === null) top.after = snapshot();
+  };
+  const record = (before, after) => {
+    past.push({ before, after });
     if (past.length > HISTORY) past.shift();
     future = [];
   };
@@ -170,7 +223,12 @@ export function createStore(onChange, storage = globalThis.localStorage) {
     canUndo: () => past.length > 0,
     canRedo: () => future.length > 0,
     snapshot,
-    remember,
+
+    // Start an undo step for typing: it closes when the next step begins.
+    remember(before = snapshot()) {
+      closeOpenStep();
+      record(before, null);
+    },
 
     // Only when something is waiting: a stale tab closing must not overwrite a newer list.
     flush() {
@@ -179,8 +237,12 @@ export function createStore(onChange, storage = globalThis.localStorage) {
 
     // Run a change as one undoable step.
     change(fn, { undoable = true, reason = 'edit' } = {}) {
-      if (undoable) remember();
-      fn(state);
+      if (undoable) {
+        closeOpenStep();
+        const before = snapshot();
+        fn(state);
+        record(before, snapshot());
+      } else fn(state);
       queueSave();
       onChange?.(reason);
     },
@@ -191,26 +253,48 @@ export function createStore(onChange, storage = globalThis.localStorage) {
       onChange?.(reason);
     },
 
+    // Swap in a whole new list as one undoable step.
     replace(next, { reason = 'replace' } = {}) {
-      remember();
+      closeOpenStep();
+      const before = snapshot();
       state = clean(next);
+      record(before, snapshot());
       queueSave();
       onChange?.(reason);
     },
 
+    // Take the merged copy from another phone. Not a step of ours, so not undoable.
+    adopt(next) {
+      state = clean(next);
+      queueSave();
+      onChange?.('remote');
+    },
+
+    // Open a different list altogether; its history starts fresh.
+    switchTo(next) {
+      state = clean(next);
+      past = [];
+      future = [];
+      persist();
+      onChange?.('switch');
+    },
+
     undo() {
-      if (!past.length) return false;
-      future.push(snapshot());
-      state = JSON.parse(past.pop());
+      closeOpenStep();
+      const step = past.pop();
+      if (!step) return false;
+      applyStep(state, JSON.parse(step.after), JSON.parse(step.before), Date.now());
+      future.push(step);
       queueSave();
       onChange?.('history');
       return true;
     },
 
     redo() {
-      if (!future.length) return false;
-      past.push(snapshot());
-      state = JSON.parse(future.pop());
+      const step = future.pop();
+      if (!step) return false;
+      applyStep(state, JSON.parse(step.before), JSON.parse(step.after), Date.now());
+      past.push(step);
       queueSave();
       onChange?.('history');
       return true;
@@ -220,7 +304,7 @@ export function createStore(onChange, storage = globalThis.localStorage) {
     reload(raw) {
       try {
         state = clean(JSON.parse(raw));
-        onChange?.('history');
+        onChange?.('remote');
       } catch {
         /* a half-written value is ignored; the next save settles it */
       }
