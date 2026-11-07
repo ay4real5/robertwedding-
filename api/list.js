@@ -26,7 +26,10 @@ export default async function handler(req, res) {
     const message = String(err?.message || '');
     const unavailable = /token|credential|store|suspended|not configured|BLOB_READ_WRITE/i.test(message) || err?.name === 'BlobStoreNotFoundError';
     console.error('list error:', err?.name, message.slice(0, 200));
-    // The error's type (never its message) helps tell what went wrong from outside.
-    return res.status(unavailable ? 503 : 500).json({ error: unavailable ? 'storage-unavailable' : 'failed', kind: String(err?.name || 'Error').slice(0, 40) });
+    // The error's class (Blob errors all call themselves "Error") and, for a failed read, the
+    // storage's status code help tell what went wrong from outside, without exposing the message.
+    const code = message.match(/Failed to fetch blob: (\d{3})/)?.[1];
+    const kind = `${String(err?.constructor?.name || err?.name || 'Error').slice(0, 40)}${code ? ` ${code}` : ''}`;
+    return res.status(unavailable ? 503 : 500).json({ error: unavailable ? 'storage-unavailable' : 'failed', kind });
   }
 }
