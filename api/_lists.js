@@ -15,6 +15,9 @@ export class Conflict extends Error {}
 
 const pathFor = (token) => `lists/${createHash('sha256').update(token).digest('hex')}.json`;
 
+// Storage may hand back a compressed copy marked as a weak version (W/"…"); saving must name the exact one.
+const exact = (etag) => (etag ? String(etag).replace(/^W\//, '') : etag);
+
 const parse = (text) => {
   try {
     return clean(JSON.parse(text).state);
@@ -31,11 +34,11 @@ export async function handleList({ method, token, version, body }, storage) {
   const path = pathFor(token);
 
   if (method === 'GET') {
-    const found = await storage.read(path, version || null);
+    const found = await storage.read(path, exact(version) || null);
     // Not saved online yet is normal for a new list, not an error.
     if (!found) return { status: 200, json: { state: null, version: null } };
     if (found.notModified) return { status: 304 };
-    return { status: 200, json: { state: parse(found.text), version: found.etag } };
+    return { status: 200, json: { state: parse(found.text), version: exact(found.etag) } };
   }
 
   if (method === 'PUT') {
@@ -49,16 +52,18 @@ export async function handleList({ method, token, version, body }, storage) {
       const merged = current ? merge(current, incoming, { dedupe: false }).state : incoming;
       // Nothing new: skip the write, which is the costly operation on Vercel's free plan.
       if (current && fingerprint(merged) === fingerprint(current)) {
-        return { status: 200, json: { state: current, version: found.etag } };
+        return { status: 200, json: { state: current, version: exact(found.etag) } };
       }
       const text = JSON.stringify({ v: 1, state: merged });
       if (text.length > MAX_BYTES) return { status: 413, json: { error: 'too-big' } };
       try {
-        const etag = await storage.write(path, text, found ? found.etag : null);
+        const etag = await storage.write(path, text, found ? exact(found.etag) : null);
         return { status: 200, json: { state: merged, version: etag } };
       } catch (err) {
         if (!(err instanceof Conflict)) throw err;
-        // Another phone saved between our read and write: read theirs and merge again.
+        // Another phone saved between our read and write: read theirs and merge again,
+        // after a short random pause so phones saving together don't keep colliding.
+        await new Promise((resolve) => setTimeout(resolve, 20 + Math.random() * 100 * (attempt + 1)));
       }
     }
     return { status: 409, json: { error: 'busy' } };

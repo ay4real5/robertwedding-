@@ -107,6 +107,41 @@ test('a race that never ends gives up politely', async () => {
   assert.equal((await handleList({ method: 'PUT', token: TOKEN, body: { state: list(guest('a', 'Ada')) } }, always)).status, 409);
 });
 
+test('a big list keeps saving when storage hands back a weak (compressed) version', async () => {
+  // Found live: Vercel marks bigger blobs W/"…" on the way out, and every later save of a
+  // 30-guest list was refused until the phone gave up with 409.
+  const server = memoryStorage({ weakAbove: 1000 });
+  const many = (n) => Array.from({ length: n }, (_, i) => guest(`g${i}`, `Guest number ${i}`, { updatedAt: 100 + i }));
+  const first = await handleList({ method: 'PUT', token: TOKEN, body: { state: list(...many(30)) } }, server);
+  assert.equal(first.status, 200);
+  const read = await handleList({ method: 'GET', token: TOKEN }, server);
+  assert.ok(!read.json.version.startsWith('W/'), 'phones are handed the exact version');
+  const second = await handleList({ method: 'PUT', token: TOKEN, body: { state: list(...many(45)) } }, server);
+  assert.equal(second.status, 200);
+  assert.equal(second.json.state.guests.length, 45);
+  // A phone that still holds the weak form asks "anything new?" and is told no.
+  assert.equal((await handleList({ method: 'GET', token: TOKEN, version: `W/${second.json.version}` }, server)).status, 304);
+});
+
+test('two phones with big lists keep in step', async () => {
+  const server = memoryStorage({ weakAbove: 1000 });
+  const a = device(server);
+  const b = device(server);
+  add(a, ...Array.from({ length: 30 }, (_, i) => `Phone A guest ${i}`));
+  await a.sync.push();
+  b.sync.open(a.sync.token);
+  await b.sync.pull();
+  add(b, 'Added on phone B');
+  await b.sync.push();
+  add(a, 'Added on phone A');
+  await a.sync.push();
+  await b.sync.pull();
+  assert.equal(a.statuses.at(-1), 'saved');
+  assert.equal(b.statuses.at(-1), 'saved');
+  assert.equal(b.store.state.guests.length, 32);
+  assert.deepEqual(names(a), names(b));
+});
+
 test('saving what the server already has costs no write', async () => {
   const server = memoryStorage();
   const state = list(guest('a', 'Ada'));

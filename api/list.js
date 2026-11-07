@@ -26,6 +26,7 @@ export default async function handler(req, res) {
     const message = String(err?.message || '');
     const unavailable = /token|credential|store|suspended|not configured|BLOB_READ_WRITE/i.test(message) || err?.name === 'BlobStoreNotFoundError';
     console.error('list error:', err?.name, message.slice(0, 200));
-    return res.status(unavailable ? 503 : 500).json({ error: unavailable ? 'storage-unavailable' : 'failed' });
+    // The error's type (never its message) helps tell what went wrong from outside.
+    return res.status(unavailable ? 503 : 500).json({ error: unavailable ? 'storage-unavailable' : 'failed', kind: String(err?.name || 'Error').slice(0, 40) });
   }
 }
